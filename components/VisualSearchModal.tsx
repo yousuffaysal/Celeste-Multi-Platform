@@ -175,31 +175,32 @@ export default function VisualSearchModal({ onClose }: Props) {
                   if (!p) return null;
                   const shop = shopOf(p);
                   return (
-                    <div key={id} className="card row gap-12 fade-in" style={{ padding: 12 }}>
-                      {/* Thumbnail */}
-                      <div onClick={() => { router.push(`/product/${p.id}`); onClose(); }}
-                        style={{ width: 72, height: 72, borderRadius: 10, overflow: "hidden", flex: "0 0 auto", background: "var(--surface-2)", cursor: "pointer" }}>
-                        <img src={`/images/products/${p.id}.png`} alt={p.name}
-                          style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                          onError={e => { (e.currentTarget as HTMLImageElement).style.display = "none"; }} />
-                      </div>
-                      {/* Info */}
-                      <div style={{ flex: 1, minWidth: 0, cursor: "pointer" }} onClick={() => { router.push(`/product/${p.id}`); onClose(); }}>
-                        <div style={{ fontFamily: "var(--font-ui)", fontWeight: 600, fontSize: 14.5, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.name}</div>
-                        <div style={{ fontSize: 12.5, color: "var(--text-muted)", marginTop: 2 }}>{shop.name}{shop.verified && " ✓"} · {p.cat}</div>
-                        <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 5 }}>
-                          <span style={{ fontFamily: "var(--font-ui)", fontWeight: 700, fontSize: 16, color: "var(--green)" }}>{money(p.price)}</span>
-                          {p.old && <span style={{ fontSize: 13, color: "var(--text-muted)", textDecoration: "line-through" }}>{money(p.old)}</span>}
-                          <span style={{ fontSize: 11.5, color: "var(--text-secondary)" }}>⭐ {p.rating} ({p.reviews})</span>
+                    <div key={id} className="card fade-in" style={{ padding: 14, display: "flex", flexDirection: "column", gap: 10 }}>
+                      <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+                        {/* Thumbnail */}
+                        <div onClick={() => { router.push(`/product/${p.id}`); onClose(); }}
+                          style={{ width: 64, height: 64, borderRadius: 10, overflow: "hidden", flexShrink: 0, background: "var(--surface-2)", cursor: "pointer" }}>
+                          <img src={`/images/products/${p.id}.png`} alt={p.name}
+                            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                            onError={e => { (e.currentTarget as HTMLImageElement).style.display = "none"; }} />
+                        </div>
+                        {/* Info */}
+                        <div style={{ flex: 1, minWidth: 0, cursor: "pointer" }} onClick={() => { router.push(`/product/${p.id}`); onClose(); }}>
+                          <div style={{ fontFamily: "var(--font-ui)", fontWeight: 600, fontSize: 14, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.name}</div>
+                          <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 2 }}>{shop.name}{shop.verified && " ✓"} · {p.cat}</div>
+                          <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 4 }}>
+                            <span style={{ fontFamily: "var(--font-ui)", fontWeight: 700, fontSize: 15, color: "var(--green)" }}>{money(p.price)}</span>
+                            {p.old && <span style={{ fontSize: 12, color: "var(--text-muted)", textDecoration: "line-through" }}>{money(p.old)}</span>}
+                          </div>
                         </div>
                       </div>
-                      {/* Actions */}
-                      <div className="col gap-6" style={{ flexShrink: 0 }}>
-                        <button className="btn btn-primary btn-sm" onClick={() => addToCart(p.id, 1)}>
-                          <I.cart size={14} /> Add
+                      {/* Actions — side by side at the bottom */}
+                      <div style={{ display: "flex", gap: 8 }}>
+                        <button className="btn btn-primary btn-sm" style={{ flex: 1 }} onClick={() => addToCart(p.id, 1)}>
+                          <I.cart size={14} /> Add to cart
                         </button>
-                        <button className="btn btn-secondary btn-sm" onClick={() => { router.push(`/product/${p.id}`); onClose(); }}>
-                          View
+                        <button className="btn btn-secondary btn-sm" style={{ flex: 1 }} onClick={() => { router.push(`/product/${p.id}`); onClose(); }}>
+                          View details
                         </button>
                       </div>
                     </div>
