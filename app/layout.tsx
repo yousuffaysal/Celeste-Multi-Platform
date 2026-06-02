@@ -28,6 +28,11 @@ const hanken = Hanken_Grotesk({
 export const metadata: Metadata = {
   title: "Celeste — AI-native marketplace",
   description: "Describe what you need. We'll find it across thousands of verified shops.",
+  icons: {
+    icon: "/icon.svg",
+    shortcut: "/icon.svg",
+    apple: "/icon.svg",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
