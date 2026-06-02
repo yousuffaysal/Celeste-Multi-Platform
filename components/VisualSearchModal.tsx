@@ -15,6 +15,7 @@ export default function VisualSearchModal({ onClose }: Props) {
   const [preview, setPreview] = useState<string | null>(null);
   const [status, setStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
   const [description, setDescription] = useState("");
+  const [aiResponse, setAiResponse] = useState("");
   const [matches, setMatches] = useState<string[]>([]);
   const [dragging, setDragging] = useState(false);
 
@@ -45,7 +46,8 @@ export default function VisualSearchModal({ onClose }: Props) {
         });
         const data = await res.json();
         if (data.error) throw new Error(data.error);
-        setDescription(data.description);
+        setDescription(data.description ?? "");
+        setAiResponse(data.response ?? "");
         setMatches(data.productIds ?? []);
         setStatus("done");
       } catch {
@@ -68,7 +70,7 @@ export default function VisualSearchModal({ onClose }: Props) {
   };
 
   const reset = () => {
-    setPreview(null); setStatus("idle"); setMatches([]); setDescription("");
+    setPreview(null); setStatus("idle"); setMatches([]); setDescription(""); setAiResponse("");
     if (fileRef.current) fileRef.current.value = "";
   };
 
@@ -144,19 +146,28 @@ export default function VisualSearchModal({ onClose }: Props) {
             </div>
           )}
 
-          {/* AI description */}
-          {status === "done" && description && (
-            <div style={{ background: "var(--green-tint)", borderRadius: 12, padding: "12px 16px", display: "flex", gap: 10, alignItems: "flex-start" }}>
-              <Spark size={18} style={{ color: "var(--green)", flexShrink: 0, marginTop: 1 }} />
-              <p style={{ fontSize: 14, color: "var(--green-deep)", lineHeight: 1.55, margin: 0 }}>{description}</p>
+          {/* AI smart response bubble */}
+          {status === "done" && (
+            <div style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
+              <div style={{ width: 32, height: 32, borderRadius: 99, background: "var(--green)", display: "grid", placeItems: "center", flexShrink: 0 }}>
+                <Spark size={16} style={{ color: "#fff" }} />
+              </div>
+              <div style={{ background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: "4px 14px 14px 14px", padding: "12px 16px", flex: 1 }}>
+                {description && (
+                  <p style={{ fontSize: 12.5, color: "var(--text-muted)", margin: "0 0 6px", lineHeight: 1.5, fontStyle: "italic" }}>{description}</p>
+                )}
+                <p style={{ fontSize: 14.5, color: "var(--text-primary)", margin: 0, lineHeight: 1.6, fontFamily: "var(--font-ui)" }}>
+                  {aiResponse || (matches.length > 0 ? "Here are the closest matches I found:" : "No close matches — try uploading a clearer product photo.")}
+                </p>
+              </div>
             </div>
           )}
 
           {/* Matched products */}
-          {status === "done" && (
+          {status === "done" && matches.length > 0 && (
             <div>
-              <div style={{ fontFamily: "var(--font-ui)", fontWeight: 700, fontSize: 14, color: "var(--text-primary)", marginBottom: 12 }}>
-                {matches.length > 0 ? `${matches.length} matching products found` : "No close matches found — try a clearer photo"}
+              <div style={{ fontFamily: "var(--font-ui)", fontWeight: 700, fontSize: 13.5, color: "var(--text-muted)", marginBottom: 10, textTransform: "uppercase", letterSpacing: ".04em" }}>
+                {matches.length} match{matches.length !== 1 ? "es" : ""} found
               </div>
               <div className="col gap-10">
                 {matches.map(id => {
@@ -196,6 +207,13 @@ export default function VisualSearchModal({ onClose }: Props) {
                 })}
               </div>
             </div>
+          )}
+
+          {/* Try another photo CTA — shown after AI responds (with or without matches) */}
+          {status === "done" && (
+            <button className="btn btn-ghost btn-sm" style={{ alignSelf: "flex-start", color: "var(--text-secondary)" }} onClick={reset}>
+              <I.refresh size={14} /> Try a different photo
+            </button>
           )}
 
           {status === "error" && (
