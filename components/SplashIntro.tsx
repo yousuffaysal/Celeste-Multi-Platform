@@ -5,16 +5,15 @@ export default function SplashIntro({ onDone }: { onDone: () => void }) {
   const [phase, setPhase] = useState<"enter" | "hold" | "exit" | "done">("enter");
 
   useEffect(() => {
-    // Logo fades in
     const t0 = setTimeout(() => setPhase("hold"), 80);
-    // Hold on screen, then slide up
-    const t1 = setTimeout(() => setPhase("exit"), 1600);
-    // Notify hero to start
-    const t2 = setTimeout(() => { setPhase("done"); onDone(); }, 2700);
+    const t1 = setTimeout(() => setPhase("exit"), 1800);
+    const t2 = setTimeout(() => { setPhase("done"); onDone(); }, 2900);
     return () => { clearTimeout(t0); clearTimeout(t1); clearTimeout(t2); };
   }, [onDone]);
 
   if (phase === "done") return null;
+
+  const visible = phase === "hold";
 
   return (
     <div
@@ -27,20 +26,20 @@ export default function SplashIntro({ onDone }: { onDone: () => void }) {
         alignItems: "center",
         justifyContent: "center",
         flexDirection: "column",
-        gap: 20,
+        gap: 22,
         transform: phase === "exit" ? "translateY(-100%)" : "translateY(0)",
         transition: phase === "exit"
-          ? "transform 1.1s cubic-bezier(0.76, 0, 0.24, 1)"
+          ? "transform 1.15s cubic-bezier(0.76, 0, 0.24, 1)"
           : "none",
       }}
     >
-      {/* Actual logo — bear icon */}
+      {/* Bear logo */}
       <div style={{
-        opacity: phase === "hold" ? 1 : 0,
-        transform: phase === "hold" ? "scale(1) translateY(0)" : "scale(0.82) translateY(12px)",
-        transition: "opacity 0.9s cubic-bezier(0.4,0,0.2,1), transform 0.9s cubic-bezier(0.4,0,0.2,1)",
+        opacity: visible ? 1 : 0,
+        transform: visible ? "scale(1) translateY(0)" : "scale(0.78) translateY(16px)",
+        transition: "opacity 0.95s cubic-bezier(0.4,0,0.2,1), transform 0.95s cubic-bezier(0.4,0,0.2,1)",
       }}>
-        <div style={{ width: 88, height: 88, borderRadius: 22, overflow: "hidden", boxShadow: "0 20px 60px rgba(0,0,0,0.25)" }}>
+        <div style={{ width: 110, height: 110, borderRadius: 26, overflow: "hidden", boxShadow: "0 24px 64px rgba(0,0,0,0.28)" }}>
           <img
             src="https://ik.imagekit.io/2lax2ytm2/Screenshot%202026-05-30%20at%203.58.44%E2%80%AFPM.png"
             alt="Celeste"
@@ -53,26 +52,43 @@ export default function SplashIntro({ onDone }: { onDone: () => void }) {
       <div style={{
         fontFamily: "var(--font-display)",
         fontWeight: 600,
-        fontSize: 28,
-        letterSpacing: "-0.8px",
+        fontSize: 34,
+        letterSpacing: "-1px",
         color: "#fff",
-        opacity: phase === "hold" ? 1 : 0,
-        transform: phase === "hold" ? "translateY(0)" : "translateY(10px)",
-        transition: "opacity 1s 0.18s cubic-bezier(0.4,0,0.2,1), transform 1s 0.18s cubic-bezier(0.4,0,0.2,1)",
+        opacity: visible ? 1 : 0,
+        transform: visible ? "translateY(0)" : "translateY(12px)",
+        transition: "opacity 1s 0.2s cubic-bezier(0.4,0,0.2,1), transform 1s 0.2s cubic-bezier(0.4,0,0.2,1)",
       }}>
         Celeste
       </div>
 
-      {/* Subtle tagline */}
+      {/* AI-native line — yellow */}
       <div style={{
         fontFamily: "var(--font-ui)",
-        fontSize: 13,
-        color: "rgba(255,255,255,0.45)",
-        letterSpacing: "0.05em",
-        opacity: phase === "hold" ? 1 : 0,
-        transition: "opacity 1.1s 0.36s cubic-bezier(0.4,0,0.2,1)",
+        fontWeight: 600,
+        fontSize: 14,
+        color: "#FBE249",
+        letterSpacing: "0.08em",
+        textTransform: "uppercase",
+        opacity: visible ? 1 : 0,
+        transform: visible ? "translateY(0)" : "translateY(10px)",
+        transition: "opacity 1s 0.34s cubic-bezier(0.4,0,0.2,1), transform 1s 0.34s cubic-bezier(0.4,0,0.2,1)",
+        marginTop: -10,
       }}>
         AI-native marketplace
+      </div>
+
+      {/* Foxmen Studio credit */}
+      <div style={{
+        fontFamily: "var(--font-ui)",
+        fontSize: 12.5,
+        color: "rgba(255,255,255,0.35)",
+        letterSpacing: "0.04em",
+        opacity: visible ? 1 : 0,
+        transition: "opacity 1.1s 0.52s cubic-bezier(0.4,0,0.2,1)",
+        marginTop: 8,
+      }}>
+        by <span style={{ color: "rgba(255,255,255,0.6)", fontWeight: 500 }}>@Foxmen Studio</span>
       </div>
     </div>
   );

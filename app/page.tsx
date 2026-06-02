@@ -164,36 +164,50 @@ export default function HomePage() {
         <div className="container" style={{ paddingTop: 56, paddingBottom: 56, position: "relative", zIndex: 1 }}>
           <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr)", gap: 36 }}>
             <div style={{ maxWidth: 760, margin: "0 auto", textAlign: "center" }}>
-              {/* Each hero element staggers in after splash exits */}
-              <div style={{
-                opacity: heroReady ? 1 : 0,
-                transform: heroReady ? "translateY(0)" : "translateY(22px)",
-                transition: "opacity 0.55s 0s cubic-bezier(.4,0,.2,1), transform 0.55s 0s cubic-bezier(.4,0,.2,1)",
-              }}>
-                <AIChip label="AI-native marketplace" style={{ height: 28, fontSize: 12 }} />
+
+              {/* AI chip — clips up */}
+              <div style={{ overflow: "hidden" }}>
+                <div style={{
+                  transform: heroReady ? "translateY(0)" : "translateY(110%)",
+                  opacity: heroReady ? 1 : 0,
+                  transition: "transform 0.75s 0s cubic-bezier(0.22,0.61,0.36,1), opacity 0.5s 0s ease",
+                }}>
+                  <AIChip label="AI-native marketplace" style={{ height: 28, fontSize: 12 }} />
+                </div>
               </div>
-              <div style={{
-                opacity: heroReady ? 1 : 0,
-                transform: heroReady ? "translateY(0)" : "translateY(28px)",
-                transition: "opacity 0.6s 0.08s cubic-bezier(.4,0,.2,1), transform 0.6s 0.08s cubic-bezier(.4,0,.2,1)",
-              }}>
-                <h1 className="t-display" style={{ marginTop: 18 }}>Tell us what you need.<br/>We&apos;ll find it.</h1>
+
+              {/* Headline — each word reveals upward */}
+              <div style={{ overflow: "hidden", marginTop: 18 }}>
+                <h1 className="t-display" style={{
+                  transform: heroReady ? "translateY(0)" : "translateY(100%)",
+                  opacity: heroReady ? 1 : 0,
+                  transition: "transform 0.85s 0.1s cubic-bezier(0.22,0.61,0.36,1), opacity 0.6s 0.1s ease",
+                  display: "block",
+                }}>
+                  Tell us what you need.<br/>We&apos;ll find it.
+                </h1>
               </div>
-              <div style={{
-                opacity: heroReady ? 1 : 0,
-                transform: heroReady ? "translateY(0)" : "translateY(22px)",
-                transition: "opacity 0.6s 0.18s cubic-bezier(.4,0,.2,1), transform 0.6s 0.18s cubic-bezier(.4,0,.2,1)",
-              }}>
-                <p className="t-body-lg muted" style={{ marginTop: 16, maxWidth: 560, marginInline: "auto" }}>
+
+              {/* Subtitle — fades up */}
+              <div style={{ overflow: "hidden", marginTop: 16 }}>
+                <p className="t-body-lg muted" style={{
+                  maxWidth: 560, marginInline: "auto",
+                  transform: heroReady ? "translateY(0)" : "translateY(40px)",
+                  opacity: heroReady ? 1 : 0,
+                  transition: "transform 0.8s 0.22s cubic-bezier(0.22,0.61,0.36,1), opacity 0.7s 0.22s ease",
+                }}>
                   Describe it in your words. Celeste searches thousands of verified shops and builds the perfect set — across every vendor.
                 </p>
               </div>
+
+              {/* Chips — stagger in */}
               <div style={{
+                marginTop: 20,
                 opacity: heroReady ? 1 : 0,
-                transform: heroReady ? "translateY(0)" : "translateY(18px)",
-                transition: "opacity 0.55s 0.28s cubic-bezier(.4,0,.2,1), transform 0.55s 0.28s cubic-bezier(.4,0,.2,1)",
+                transform: heroReady ? "translateY(0)" : "translateY(20px)",
+                transition: "opacity 0.7s 0.36s ease, transform 0.7s 0.36s cubic-bezier(0.22,0.61,0.36,1)",
               }}>
-                <div className="row gap-8" style={{ justifyContent: "center", flexWrap: "wrap", marginTop: 20 }}>
+                <div className="row gap-8" style={{ justifyContent: "center", flexWrap: "wrap" }}>
                   {EXAMPLE_QUERIES.map(q => (
                     <button key={q} className="chip" onClick={() => router.push("/search")}>
                       <Spark size={13} style={{ color: "var(--green)" }} /> {q}
@@ -202,11 +216,13 @@ export default function HomePage() {
                 </div>
               </div>
             </div>
+
+            {/* AI demo card — scales and fades in last */}
             <div style={{
               maxWidth: 980, margin: "0 auto", width: "100%",
               opacity: heroReady ? 1 : 0,
-              transform: heroReady ? "translateY(0) scale(1)" : "translateY(32px) scale(0.97)",
-              transition: "opacity 0.7s 0.38s cubic-bezier(.4,0,.2,1), transform 0.7s 0.38s cubic-bezier(.4,0,.2,1)",
+              transform: heroReady ? "translateY(0) scale(1)" : "translateY(48px) scale(0.96)",
+              transition: "opacity 0.9s 0.48s cubic-bezier(0.4,0,0.2,1), transform 0.9s 0.48s cubic-bezier(0.22,0.61,0.36,1)",
             }}>
               <AISearchDemo />
             </div>
