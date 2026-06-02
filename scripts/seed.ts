@@ -37,16 +37,23 @@ async function seed() {
     await client.query(schema);
     console.log("✅ Schema ready");
 
-    // Demo users
+    // Accounts
     console.log("⏳ Seeding users...");
-    const hash = await bcrypt.hash("demo1234", 10);
+    const adminHash    = await bcrypt.hash("Admin@2026",    10);
+    const vendorHash   = await bcrypt.hash("Vendor@2026",   10);
+    const customerHash = await bcrypt.hash("Customer@2026", 10);
+
     await client.query(`
       INSERT INTO users (email, password_hash, name, role, shop_id) VALUES
-        ('admin@celeste.shop',    $1, 'Admin User',   'admin',    null),
-        ('vendor@celeste.shop',   $1, 'Lumen Studio', 'vendor',   'lumen'),
-        ('customer@celeste.shop', $1, 'Alex Morgan',  'customer', null)
-      ON CONFLICT (email) DO UPDATE SET password_hash = EXCLUDED.password_hash
-    `, [hash]);
+        ('yusuf@foxmen.celeste',    $1, 'Yousuf H Faysal', 'admin',    null),
+        ('vendor@foxmen.celeste',   $2, 'Lumen Studio',    'vendor',   'lumen'),
+        ('customer@foxmen.celeste', $3, 'Alex Morgan',     'customer', null)
+      ON CONFLICT (email) DO UPDATE
+        SET password_hash = EXCLUDED.password_hash,
+            name          = EXCLUDED.name,
+            role          = EXCLUDED.role,
+            shop_id       = EXCLUDED.shop_id
+    `, [adminHash, vendorHash, customerHash]);
     console.log("✅ Users seeded");
 
     const { rows: [vendor] }   = await client.query("SELECT id FROM users WHERE email = 'vendor@celeste.shop'");

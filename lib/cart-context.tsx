@@ -14,9 +14,7 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | null>(null);
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
-  const [cart, setCart] = useState<CartItem[]>([
-    { id: "p1", qty: 1 }, { id: "p5", qty: 1 }, { id: "p7", qty: 2 },
-  ]);
+  const [cart, setCart] = useState<CartItem[]>([]);
 
   const cartCount = cart.reduce((s, x) => s + x.qty, 0);
 
