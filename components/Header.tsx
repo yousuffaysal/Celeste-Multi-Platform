@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Celeste, Spark, I } from "./icons";
 import { useCart } from "@/lib/cart-context";
 import { CATEGORIES } from "@/lib/data";
+import VisualSearchModal from "./VisualSearchModal";
 
 const ANNOUNCE = [
   "Free shipping on orders over $75 — across every vendor",
@@ -23,6 +24,7 @@ export default function Header({ compact, query: extQuery, setQuery: extSetQuery
   const [menuOpen, setMenuOpen] = useState(false);
   const [annOn, setAnnOn] = useState(true);
   const [localQuery, setLocalQuery] = useState("");
+  const [visualOpen, setVisualOpen] = useState(false);
   const { cartCount } = useCart();
   const router = useRouter();
 
@@ -76,8 +78,11 @@ export default function Header({ compact, query: extQuery, setQuery: extSetQuery
                 style={{ height: 48, paddingLeft: 44, paddingRight: 84, borderRadius: 999, fontSize: 14.5 }}
               />
               <div style={{ position: "absolute", right: 8, display: "flex", gap: 4, alignItems: "center" }}>
-                <button type="button" title="Search by photo" style={{ width: 34, height: 34, borderRadius: 999,
-                  display: "grid", placeItems: "center", color: "var(--text-secondary)" }}>
+                <button type="button" title="Search by photo"
+                  onClick={() => setVisualOpen(true)}
+                  style={{ width: 34, height: 34, borderRadius: 999,
+                  display: "grid", placeItems: "center", color: "var(--green)",
+                  background: "var(--green-tint)", transition: "background .15s" }}>
                   <I.camera size={19} />
                 </button>
                 <button type="submit" className="btn btn-primary" style={{ height: 36, width: 36, padding: 0, borderRadius: 999 }}>
@@ -178,5 +183,8 @@ export default function Header({ compact, query: extQuery, setQuery: extSetQuery
         </>
       )}
     </header>
+
+    {/* Visual search modal — rendered at root level via portal-like pattern */}
+    {visualOpen && <VisualSearchModal onClose={() => setVisualOpen(false)} />}
   );
 }
