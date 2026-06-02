@@ -364,10 +364,10 @@ export default function AboutPage() {
   ];
 
   const timeline: TLItem[] = [
-    { year: "2021", title: "Idea born",          body: "Two marketplace engineers frustrated by search that couldn't understand a full sentence." },
-    { year: "2022", title: "First AI prototype", body: "Internal demo: describe a lamp, get 12 exact matches from 4 shops. Team of 6." },
-    { year: "2023", title: "Beta launch",        body: "1,200 sellers, 18K shoppers, 97% search satisfaction on day one." },
-    { year: "2024", title: "Scale & trust",      body: "124K shoppers, 8,400 sellers, full buyer protection, Series A closed." },
+    { year: "2024", title: "Concept born at Foxmen Studio", body: "Foxmen Studio set out to reimagine e-commerce — what if shopping started with a sentence, not a search bar?" },
+    { year: "2025", title: "Design & prototype",            body: "The Celeste concept took shape: AI-native, multivendor, one cart. Built as a flagship studio product." },
+    { year: "2025", title: "Full platform build",           body: "From design system to AI assistant, visual search, vendor dashboard, and real-time checkout — all crafted in-house." },
+    { year: "2026", title: "Celeste concept launch",        body: "Launched publicly as a Foxmen Studio concept product — a vision of what calm, intelligent commerce should feel like." },
   ];
 
   const avatars = ["#2d6a4f", "#52b788", "#74c69d", "#b7e4c7"];
@@ -547,7 +547,7 @@ export default function AboutPage() {
               />
               <FadeUp delay={160}>
                 <p style={{ color: "var(--text-secondary)", fontSize: 15.5, lineHeight: 1.8 }}>
-                  We got tired of marketplaces burying good products under ads, garbled search results, and dark-pattern checkouts. So we started from scratch with one rule: the AI works for the buyer, not the algorithm.
+                  Celeste is a concept product by <strong>Foxmen Studio</strong> — born from a simple frustration: marketplaces bury good products under ads and dark patterns. We reimagined it from scratch with one rule: the intelligence works for the buyer, not the algorithm.
                 </p>
               </FadeUp>
             </div>
@@ -666,10 +666,72 @@ export default function AboutPage() {
                 style={{ fontSize: "clamp(17px,2.3vw,27px)", color: "var(--text-primary)", lineHeight: 1.48, maxWidth: 660, margin: "0 auto 18px", fontStyle: "italic" }}
               />
               <FadeUp delay={320}>
-                <div style={{ fontFamily: "var(--font-ui)", fontWeight: 600, fontSize: 13, color: "var(--text-muted)" }}>— Celeste founding team, 2021</div>
+                <div style={{ fontFamily: "var(--font-ui)", fontWeight: 600, fontSize: 13, color: "var(--text-muted)" }}>— Yousuf H Faysal, Foxmen Studio</div>
               </FadeUp>
             </div>
           </ClipReveal>
+        </div>
+      </section>
+
+      {/* ── FOXMEN STUDIO CREDIT ─────────────────────── */}
+      <section className="about-section" style={{ background: "#070d0a", position: "relative", overflow: "hidden" }}>
+        <div style={{ position: "absolute", inset: 0, backgroundImage: "radial-gradient(rgba(255,255,255,.035) 1.5px, transparent 1.5px)", backgroundSize: "30px 30px", pointerEvents: "none" }} />
+        <div className="about-container" style={{ position: "relative", zIndex: 1 }}>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", gap: 24 }}>
+            <FadeUp>
+              <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(251,226,73,.08)", border: "1px solid rgba(251,226,73,.16)", borderRadius: 99, padding: "5px 16px 5px 10px" }}>
+                <div style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--yellow)" }} />
+                <span style={{ fontSize: 11.5, fontFamily: "var(--font-ui)", fontWeight: 700, color: "var(--yellow)", letterSpacing: ".08em", textTransform: "uppercase" }}>A Foxmen Studio Concept</span>
+              </div>
+            </FadeUp>
+
+            <FadeUp delay={80}>
+              {/* Foxmen Studio logo */}
+              <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                <div style={{ width: 56, height: 56, borderRadius: 14, overflow: "hidden", background: "rgba(255,255,255,.06)", border: "1px solid rgba(255,255,255,.1)", display: "grid", placeItems: "center", flexShrink: 0 }}>
+                  <img
+                    src="https://icon.horse/icon/foxmenstudio.com"
+                    alt="Foxmen Studio"
+                    style={{ width: 40, height: 40, objectFit: "contain" }}
+                    onError={e => {
+                      const img = e.currentTarget;
+                      img.src = "https://www.google.com/s2/favicons?sz=128&domain=foxmenstudio.com";
+                      img.onerror = () => { img.style.display = "none"; };
+                    }}
+                  />
+                </div>
+                <div style={{ textAlign: "left" }}>
+                  <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 22, color: "#fff", letterSpacing: "-.4px" }}>Foxmen Studio</div>
+                  <div style={{ fontSize: 13, color: "rgba(255,255,255,.45)", fontFamily: "var(--font-ui)", marginTop: 2 }}>Design & Technology Studio</div>
+                </div>
+              </div>
+            </FadeUp>
+
+            <FadeUp delay={160}>
+              <p style={{ color: "rgba(255,255,255,.52)", fontSize: 16, lineHeight: 1.8, maxWidth: 560 }}>
+                Celeste is a concept product created by <span style={{ color: "rgba(255,255,255,.85)", fontWeight: 500 }}>Foxmen Studio</span> — a design and technology studio focused on building thoughtful, human-centred digital products. Celeste explores a vision of what calm, intelligent commerce could feel like.
+              </p>
+            </FadeUp>
+
+            <FadeUp delay={220}>
+              <div style={{ display: "flex", alignItems: "center", gap: 20, flexWrap: "wrap", justifyContent: "center" }}>
+                <div style={{ textAlign: "center" }}>
+                  <div style={{ fontFamily: "var(--font-ui)", fontWeight: 700, fontSize: 13, color: "rgba(255,255,255,.35)", letterSpacing: ".06em", textTransform: "uppercase", marginBottom: 4 }}>Designed & built by</div>
+                  <div style={{ fontFamily: "var(--font-display)", fontWeight: 600, fontSize: 18, color: "var(--yellow)" }}>Yousuf H Faysal</div>
+                </div>
+                <div style={{ width: 1, height: 36, background: "rgba(255,255,255,.12)" }} />
+                <div style={{ textAlign: "center" }}>
+                  <div style={{ fontFamily: "var(--font-ui)", fontWeight: 700, fontSize: 13, color: "rgba(255,255,255,.35)", letterSpacing: ".06em", textTransform: "uppercase", marginBottom: 4 }}>Studio</div>
+                  <div style={{ fontFamily: "var(--font-display)", fontWeight: 600, fontSize: 18, color: "#fff" }}>Foxmen Studio</div>
+                </div>
+                <div style={{ width: 1, height: 36, background: "rgba(255,255,255,.12)" }} />
+                <div style={{ textAlign: "center" }}>
+                  <div style={{ fontFamily: "var(--font-ui)", fontWeight: 700, fontSize: 13, color: "rgba(255,255,255,.35)", letterSpacing: ".06em", textTransform: "uppercase", marginBottom: 4 }}>Year</div>
+                  <div style={{ fontFamily: "var(--font-display)", fontWeight: 600, fontSize: 18, color: "#fff" }}>2026</div>
+                </div>
+              </div>
+            </FadeUp>
+          </div>
         </div>
       </section>
 

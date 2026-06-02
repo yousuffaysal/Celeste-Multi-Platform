@@ -223,7 +223,7 @@ export default function AssistantPage() {
               <Spark size={20} style={{ color: "var(--green)" }} className="spark-anim" />
               <div>
                 <div style={{ fontFamily: "var(--font-display)", fontWeight: 600, fontSize: 16, lineHeight: 1.1 }}>Celeste Assistant</div>
-                <div className="t-detail" style={{ fontSize: 11.5 }}>Powered by Groq · llama-3.3-70b</div>
+                <div className="t-detail" style={{ fontSize: 11.5 }}>Your AI-powered shopping companion</div>
               </div>
             </div>
           </div>
@@ -277,7 +277,7 @@ export default function AssistantPage() {
                 </button>
               </form>
               <div className="t-detail" style={{ textAlign: "center", marginTop: 8, fontSize: 11.5 }}>
-                Celeste AI · Groq · Click any product to view details
+                Celeste AI · Click any product to view details
               </div>
             </div>
           </div>
