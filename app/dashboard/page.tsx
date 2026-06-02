@@ -91,12 +91,18 @@ export default function DashboardPage() {
 
         {/* Brand */}
         <div className="dash-brand">
-          <span className="dash-brand-mark">
-            <CelesteMark size={30} color="var(--yellow)" />
-          </span>
-          <span className="dash-brand-wordmark">
-            <span style={{ fontFamily: "var(--font-display)", fontWeight: 600, fontSize: 18,
-              letterSpacing: "-.5px", color: "var(--yellow)", lineHeight: 1 }}>Celeste</span>
+          <span className="dash-brand-mark" style={{ display: "inline-flex", alignItems: "center", gap: 9 }}>
+            <span style={{ width: 36, height: 36, borderRadius: 8, overflow: "hidden", flex: "0 0 auto", display: "grid", placeItems: "center" }}>
+              <img
+                src="https://ik.imagekit.io/2lax2ytm2/Screenshot%202026-05-30%20at%203.58.44%E2%80%AFPM.png"
+                alt="Celeste"
+                style={{ width: "100%", height: "100%", objectFit: "cover", transform: "scale(1.25)" }}
+              />
+            </span>
+            <span className="dash-brand-wordmark">
+              <span style={{ fontFamily: "var(--font-display)", fontWeight: 600, fontSize: 18,
+                letterSpacing: "-.5px", color: "var(--yellow)", lineHeight: 1 }}>Celeste</span>
+            </span>
           </span>
         </div>
 
