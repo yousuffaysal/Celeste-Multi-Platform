@@ -1,15 +1,26 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 export default function SplashIntro({ onDone }: { onDone: () => void }) {
   const [phase, setPhase] = useState<"enter" | "hold" | "exit" | "done">("enter");
+  const onDoneRef = useRef(onDone);
+  const firedRef = useRef(false); // prevent StrictMode double-fire
+
+  useEffect(() => { onDoneRef.current = onDone; }, [onDone]);
 
   useEffect(() => {
+    if (firedRef.current) return;
+    firedRef.current = true;
+
     const t0 = setTimeout(() => setPhase("hold"), 80);
     const t1 = setTimeout(() => setPhase("exit"), 1800);
-    const t2 = setTimeout(() => { setPhase("done"); onDone(); }, 2900);
+    const t2 = setTimeout(() => {
+      setPhase("done");
+      onDoneRef.current();
+    }, 2900);
+
     return () => { clearTimeout(t0); clearTimeout(t1); clearTimeout(t2); };
-  }, [onDone]);
+  }, []); // eslint-disable-line
 
   if (phase === "done") return null;
 
@@ -62,7 +73,7 @@ export default function SplashIntro({ onDone }: { onDone: () => void }) {
         Celeste
       </div>
 
-      {/* AI-native line — yellow */}
+      {/* Yellow tagline */}
       <div style={{
         fontFamily: "var(--font-ui)",
         fontWeight: 600,

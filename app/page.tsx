@@ -150,11 +150,12 @@ function FlashTimer() {
 export default function HomePage() {
   const router = useRouter();
   const [heroReady, setHeroReady] = useState(false);
+  const handleSplashDone = useRef(() => setHeroReady(true));
 
   return (
     <div>
       {/* SPLASH — white screen slides up like a window opening */}
-      <SplashIntro onDone={() => setHeroReady(true)} />
+      <SplashIntro onDone={handleSplashDone.current} />
 
       {/* HERO */}
       <section style={{ position: "relative" }}>
@@ -283,6 +284,90 @@ export default function HomePage() {
             {PRODUCTS.slice(0, 8).map(p => (
               <ProductCard key={p.id} p={{ ...p, ai: true }} onOpen={(pr) => router.push(`/product/${pr.id}`)} />
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* AI ASSISTANT CTA */}
+      <section className="section" style={{ background: "#01614E", overflow: "hidden", position: "relative" }}>
+        {/* Decorative glows */}
+        <div style={{ position: "absolute", right: "-8%", top: "-20%", width: 480, height: 480, borderRadius: "50%", background: "radial-gradient(circle, rgba(251,226,73,.12) 0%, transparent 65%)", pointerEvents: "none" }} />
+        <div style={{ position: "absolute", left: "-4%", bottom: "-10%", width: 320, height: 320, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,255,255,.06) 0%, transparent 70%)", pointerEvents: "none" }} />
+        <div className="container" style={{ position: "relative", zIndex: 1 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48, alignItems: "center" }} className="vsearch-grid">
+            {/* Left: copy */}
+            <div>
+              <div style={{ display: "inline-flex", alignItems: "center", gap: 7, background: "rgba(251,226,73,.12)", border: "1px solid rgba(251,226,73,.22)", borderRadius: 99, padding: "5px 14px 5px 10px", marginBottom: 24 }}>
+                <Spark size={13} style={{ color: "#FBE249" }} />
+                <span style={{ fontSize: 12, fontFamily: "var(--font-ui)", fontWeight: 700, color: "#FBE249", letterSpacing: ".08em", textTransform: "uppercase" }}>AI Shopping Assistant</span>
+              </div>
+              <h2 className="t-h2" style={{ color: "#fff", fontSize: "clamp(28px,3.8vw,48px)", lineHeight: 1.12, marginBottom: 18 }}>
+                Just tell Celeste<br/>what you need.
+              </h2>
+              <p style={{ color: "rgba(255,255,255,.62)", fontSize: 17, lineHeight: 1.7, maxWidth: 440, marginBottom: 32 }}>
+                Describe a room, a vibe, a budget — and Celeste AI builds the perfect set of products across every shop in seconds. One cart, one checkout.
+              </p>
+              <div className="row gap-12" style={{ flexWrap: "wrap" }}>
+                <button className="btn btn-accent btn-lg" onClick={() => router.push("/assistant")}>
+                  <Spark size={18} /> Try the assistant
+                </button>
+                <button className="btn btn-ghost-white btn-lg" onClick={() => router.push("/assistant")}>
+                  See how it works
+                </button>
+              </div>
+              <div className="row gap-16" style={{ marginTop: 28, flexWrap: "wrap" }}>
+                {[["2.4M+", "products scanned"], ["8,400+", "verified shops"], ["< 2s", "average response"]].map(([v, l]) => (
+                  <div key={l}>
+                    <div style={{ fontFamily: "var(--font-display)", fontWeight: 600, fontSize: 22, color: "#FBE249" }}>{v}</div>
+                    <div style={{ fontSize: 12.5, color: "rgba(255,255,255,.45)", fontFamily: "var(--font-ui)" }}>{l}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Right: chat preview card */}
+            <div onClick={() => router.push("/assistant")} style={{ cursor: "pointer" }}>
+              <div style={{ background: "rgba(255,255,255,.06)", border: "1px solid rgba(255,255,255,.1)", borderRadius: 20, padding: 20, backdropFilter: "blur(12px)" }}>
+                {/* Chat bubbles */}
+                <div className="col gap-12">
+                  {[
+                    { who: "user", text: "Set up a calm home office under $400" },
+                    { who: "ai",   text: "Love this. I'd anchor on warm lighting, a tidy surface, and a little softness. Here's your set from 3 shops:" },
+                  ].map((m, i) => (
+                    <div key={i} style={{
+                      alignSelf: m.who === "user" ? "flex-end" : "flex-start",
+                      maxWidth: "82%",
+                      background: m.who === "user" ? "rgba(251,226,73,.18)" : "rgba(255,255,255,.08)",
+                      border: "1px solid " + (m.who === "user" ? "rgba(251,226,73,.25)" : "rgba(255,255,255,.1)"),
+                      borderRadius: m.who === "user" ? "14px 14px 4px 14px" : "4px 14px 14px 14px",
+                      padding: "10px 14px",
+                      fontSize: 13.5,
+                      color: m.who === "user" ? "#FBE249" : "rgba(255,255,255,.8)",
+                      fontFamily: "var(--font-ui)",
+                    }}>
+                      {m.who === "ai" && <div style={{ display: "flex", gap: 6, alignItems: "center", marginBottom: 5 }}>
+                        <Spark size={13} style={{ color: "#FBE249" }} />
+                        <span style={{ fontSize: 11, color: "#FBE249", fontWeight: 600, letterSpacing: ".04em" }}>Celeste AI</span>
+                      </div>}
+                      {m.text}
+                    </div>
+                  ))}
+                  {/* Product picks */}
+                  <div className="row gap-8" style={{ marginTop: 4, flexWrap: "wrap" }}>
+                    {["Brass Desk Lamp · $98", "Monitor Stand · $79", "Desk Tray · $38"].map(item => (
+                      <span key={item} style={{ background: "rgba(255,255,255,.08)", border: "1px solid rgba(255,255,255,.12)", borderRadius: 8, padding: "6px 10px", fontSize: 12, color: "rgba(255,255,255,.7)", fontFamily: "var(--font-ui)", fontWeight: 500 }}>
+                        {item}
+                      </span>
+                    ))}
+                  </div>
+                  {/* CTA in card */}
+                  <div style={{ background: "#FBE249", borderRadius: 10, padding: "10px 14px", display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 4 }}>
+                    <span style={{ fontFamily: "var(--font-ui)", fontWeight: 700, fontSize: 13.5, color: "#003B2F" }}>Total: $215 · Review &amp; checkout</span>
+                    <I.arrowright size={16} style={{ color: "#003B2F" }} />
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
