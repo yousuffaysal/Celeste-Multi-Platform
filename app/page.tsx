@@ -21,13 +21,14 @@ const EXAMPLE_QUERIES = [
   "warm lighting for a small living room",
 ];
 
-function AISearchDemo() {
+function AISearchDemo({ ready }: { ready: boolean }) {
   const router = useRouter();
   const [typed, setTyped] = useState("");
   const [phase, setPhase] = useState<"idle" | "typing" | "thinking" | "results">("idle");
   const [qi, setQi] = useState(0);
   const [results, setResults] = useState<Product[]>([]);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const startedRef = useRef(false);
 
   const RESULT_SETS = useMemo(() => ([
     PRODUCTS.filter(p => ["lumen","fenwick","mori"].includes(p.shop)).slice(0, 4),
@@ -50,7 +51,13 @@ function AISearchDemo() {
     timers.current.push(setTimeout(() => { setPhase("results"); setResults(RESULT_SETS[i]); }, afterType + 1300));
   };
 
-  useEffect(() => { run(0); return clearTimers; }, []); // eslint-disable-line
+  // Only start once hero is revealed after splash
+  useEffect(() => {
+    if (!ready || startedRef.current) return;
+    startedRef.current = true;
+    run(0);
+    return clearTimers;
+  }, [ready]); // eslint-disable-line
 
   const cycle = () => { const n = (qi + 1) % EXAMPLE_QUERIES.length; setQi(n); run(n); };
 
@@ -225,7 +232,7 @@ export default function HomePage() {
               transform: heroReady ? "translateY(0) scale(1)" : "translateY(48px) scale(0.96)",
               transition: "opacity 0.9s 0.48s cubic-bezier(0.4,0,0.2,1), transform 0.9s 0.48s cubic-bezier(0.22,0.61,0.36,1)",
             }}>
-              <AISearchDemo />
+              <AISearchDemo ready={heroReady} />
             </div>
           </div>
         </div>
