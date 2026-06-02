@@ -47,6 +47,7 @@ export default function Header({ compact, query: extQuery, setQuery: extSetQuery
   };
 
   return (
+    <>
     <header style={{ position: "sticky", top: 0, zIndex: 40 }}>
       {annOn && (
         <div style={{ background: "var(--green)", color: "#fff", fontFamily: "var(--font-ui)",
@@ -184,7 +185,8 @@ export default function Header({ compact, query: extQuery, setQuery: extSetQuery
       )}
     </header>
 
-    {/* Visual search modal — rendered at root level via portal-like pattern */}
+    {/* Visual search modal */}
     {visualOpen && <VisualSearchModal onClose={() => setVisualOpen(false)} />}
+    </>
   );
 }
