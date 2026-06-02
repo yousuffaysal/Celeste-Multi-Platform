@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { Celeste, CelesteMark, Spark, I } from "@/components/icons";
+import { Celeste, Spark, I } from "@/components/icons";
 import { Avatar, TONE } from "@/components/dashboard/DashComponents";
 import AdminDash from "@/components/dashboard/AdminDash";
 import VendorDash from "@/components/dashboard/VendorDash";
@@ -91,7 +91,7 @@ export default function DashboardPage() {
 
         {/* Brand */}
         <div className="dash-brand">
-          <Celeste size={18} color="var(--yellow)" />
+          <Celeste size={20} color="#fff" />
         </div>
 
         {/* Role switcher */}
