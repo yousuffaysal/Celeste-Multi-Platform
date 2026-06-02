@@ -11,6 +11,7 @@ import TrustBand from "@/components/TrustBand";
 import Ph from "@/components/Ph";
 import Stars from "@/components/Stars";
 import HeroWave from "@/components/HeroWave";
+import SplashIntro from "@/components/SplashIntro";
 import { PRODUCTS, INTENTS, SHOPS, byShop, money, Product } from "@/lib/data";
 
 const EXAMPLE_QUERIES = [
@@ -148,9 +149,13 @@ function FlashTimer() {
 
 export default function HomePage() {
   const router = useRouter();
+  const [heroReady, setHeroReady] = useState(false);
 
   return (
     <div>
+      {/* SPLASH — white screen slides up like a window opening */}
+      <SplashIntro onDone={() => setHeroReady(true)} />
+
       {/* HERO */}
       <section style={{ position: "relative" }}>
         <HeroWave />
@@ -159,20 +164,50 @@ export default function HomePage() {
         <div className="container" style={{ paddingTop: 56, paddingBottom: 56, position: "relative", zIndex: 1 }}>
           <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr)", gap: 36 }}>
             <div style={{ maxWidth: 760, margin: "0 auto", textAlign: "center" }}>
-              <AIChip label="AI-native marketplace" style={{ height: 28, fontSize: 12 }} />
-              <h1 className="t-display" style={{ marginTop: 18 }}>Tell us what you need.<br/>We&apos;ll find it.</h1>
-              <p className="t-body-lg muted" style={{ marginTop: 16, maxWidth: 560, marginInline: "auto" }}>
-                Describe it in your words. Celeste searches thousands of verified shops and builds the perfect set — across every vendor.
-              </p>
-              <div className="row gap-8" style={{ justifyContent: "center", flexWrap: "wrap", marginTop: 20 }}>
-                {EXAMPLE_QUERIES.map(q => (
-                  <button key={q} className="chip" onClick={() => router.push("/search")}>
-                    <Spark size={13} style={{ color: "var(--green)" }} /> {q}
-                  </button>
-                ))}
+              {/* Each hero element staggers in after splash exits */}
+              <div style={{
+                opacity: heroReady ? 1 : 0,
+                transform: heroReady ? "translateY(0)" : "translateY(22px)",
+                transition: "opacity 0.55s 0s cubic-bezier(.4,0,.2,1), transform 0.55s 0s cubic-bezier(.4,0,.2,1)",
+              }}>
+                <AIChip label="AI-native marketplace" style={{ height: 28, fontSize: 12 }} />
+              </div>
+              <div style={{
+                opacity: heroReady ? 1 : 0,
+                transform: heroReady ? "translateY(0)" : "translateY(28px)",
+                transition: "opacity 0.6s 0.08s cubic-bezier(.4,0,.2,1), transform 0.6s 0.08s cubic-bezier(.4,0,.2,1)",
+              }}>
+                <h1 className="t-display" style={{ marginTop: 18 }}>Tell us what you need.<br/>We&apos;ll find it.</h1>
+              </div>
+              <div style={{
+                opacity: heroReady ? 1 : 0,
+                transform: heroReady ? "translateY(0)" : "translateY(22px)",
+                transition: "opacity 0.6s 0.18s cubic-bezier(.4,0,.2,1), transform 0.6s 0.18s cubic-bezier(.4,0,.2,1)",
+              }}>
+                <p className="t-body-lg muted" style={{ marginTop: 16, maxWidth: 560, marginInline: "auto" }}>
+                  Describe it in your words. Celeste searches thousands of verified shops and builds the perfect set — across every vendor.
+                </p>
+              </div>
+              <div style={{
+                opacity: heroReady ? 1 : 0,
+                transform: heroReady ? "translateY(0)" : "translateY(18px)",
+                transition: "opacity 0.55s 0.28s cubic-bezier(.4,0,.2,1), transform 0.55s 0.28s cubic-bezier(.4,0,.2,1)",
+              }}>
+                <div className="row gap-8" style={{ justifyContent: "center", flexWrap: "wrap", marginTop: 20 }}>
+                  {EXAMPLE_QUERIES.map(q => (
+                    <button key={q} className="chip" onClick={() => router.push("/search")}>
+                      <Spark size={13} style={{ color: "var(--green)" }} /> {q}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
-            <div style={{ maxWidth: 980, margin: "0 auto", width: "100%" }}>
+            <div style={{
+              maxWidth: 980, margin: "0 auto", width: "100%",
+              opacity: heroReady ? 1 : 0,
+              transform: heroReady ? "translateY(0) scale(1)" : "translateY(32px) scale(0.97)",
+              transition: "opacity 0.7s 0.38s cubic-bezier(.4,0,.2,1), transform 0.7s 0.38s cubic-bezier(.4,0,.2,1)",
+            }}>
               <AISearchDemo />
             </div>
           </div>
