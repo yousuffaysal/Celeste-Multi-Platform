@@ -308,12 +308,17 @@ npm run db:schema    # Verify schema file
 
 ## License
 
-MIT © 2025 Celeste
+MIT © 2026 Celeste
 
 ---
 
 <div align="center">
 
 Built with care · AI-native from day one · One cart, every shop
+
+<br/><br/>
+
+Designed & developed by **Yousuf H Faysal**  
+[Foxmen Studio](https://foxmenstudio.com) · 2026
 
 </div>
