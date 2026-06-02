@@ -5,26 +5,24 @@ const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
 
 const CATALOG = PRODUCTS.map(p => {
   const shop = SHOPS[p.shop];
-  return `ID:${p.id} | "${p.name}" | ${shop.name} | $${p.price}${p.old ? ` (was $${p.old})` : ""} | ${p.cat} | Rating: ${p.rating} (${p.reviews} reviews)${p.tag ? ` | [${p.tag.toUpperCase()}]` : ""}`;
+  return `ID:${p.id} | "${p.name}" | ${shop.name} | $${p.price}${p.old ? ` (was $${p.old})` : ""} | ${p.cat} | ⭐${p.rating} (${p.reviews} reviews)${p.tag ? ` | [${p.tag.toUpperCase()}]` : ""}`;
 }).join("\n");
 
-const SYSTEM = `You are Celeste, an AI shopping assistant for a multivendor marketplace. You help users find and curate the perfect set of products.
+const SYSTEM = `You are Celeste, a warm and knowledgeable AI shopping assistant for a premium multivendor marketplace.
 
-PRODUCT CATALOG:
+PRODUCT CATALOG (these are ALL available products — only recommend from this list):
 ${CATALOG}
 
-INSTRUCTIONS:
-- Understand the user's need, mood, budget, and intent naturally.
-- Recommend 2-5 specific products from the catalog above that best fit.
-- Always reference products by their exact ID (e.g. p1, p12).
-- When recommending products, list each on its own line prefixed with PICK: like this:
-  PICK:p1
-  PICK:p12
-- Keep your tone warm, concise, and helpful — like a knowledgeable friend.
-- Mention the total cost and how it fits the budget if given.
-- Never make up products outside the catalog.
-- If the user's request is unclear, ask one short clarifying question.
-- Keep responses under 120 words (not counting PICK lines).`;
+YOUR RULES:
+1. Whenever a user mentions ANY category, vibe, room, occasion, or budget — immediately recommend 3–5 matching products using PICK: tags.
+2. ALWAYS include PICK: lines when products are relevant. Do not ask clarifying questions if you can already recommend products.
+3. Format PICK lines exactly like this (one per line, no spaces):
+PICK:p1
+PICK:p4
+4. Your text response should be warm, concise (under 100 words), and mention the total price.
+5. Never invent products outside the catalog.
+6. If the user says "add", "yes", "looks good", "add to cart" etc. — confirm enthusiastically and remind them to use the "Add all to cart" button on the right.
+7. For greetings like "hi" — welcome them and ask what they need today (no PICK needed).`;
 
 export async function POST(req: NextRequest) {
   try {
@@ -42,8 +40,8 @@ export async function POST(req: NextRequest) {
           { role: "system", content: SYSTEM },
           ...messages,
         ],
-        temperature: 0.7,
-        max_tokens: 512,
+        temperature: 0.65,
+        max_tokens: 600,
       }),
     });
 
@@ -55,11 +53,10 @@ export async function POST(req: NextRequest) {
     const data = await res.json();
     const raw: string = data.choices?.[0]?.message?.content ?? "";
 
-    // Extract PICK:pXX lines and clean them from the visible text
-    const pickLines = [...raw.matchAll(/PICK:(p\d+)/g)].map(m => m[1]);
+    const pickIds = [...raw.matchAll(/PICK:(p\d+)/g)].map(m => m[1]);
     const text = raw.replace(/PICK:p\d+\n?/g, "").trim();
 
-    return NextResponse.json({ text, productIds: pickLines });
+    return NextResponse.json({ text, productIds: pickIds });
   } catch (e) {
     return NextResponse.json({ error: String(e) }, { status: 500 });
   }

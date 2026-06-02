@@ -3,24 +3,74 @@ import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Spark, I } from "@/components/icons";
 import AIChip from "@/components/AIChip";
-import Ph from "@/components/Ph";
-import { byId, shopOf, money } from "@/lib/data";
+import { byId, shopOf, money, PRODUCTS } from "@/lib/data";
 import { useCart } from "@/lib/cart-context";
 
 const SUGGESTED = [
-  "Help me set up a calm home office under $400",
+  "Set up a calm home office under $400",
   "Build a coffee corner for a small kitchen",
-  "I need gifts for a housewarming under $200",
   "Warm up my living room with lighting and textiles",
+  "I need housewarming gifts under $200",
 ];
 
 interface Message {
   who: "user" | "ai";
   text?: string;
   thinking?: boolean;
+  productIds?: string[];
 }
 
-function Bubble({ m }: { m: Message }) {
+/* ── Inline product card shown inside chat ── */
+function InlineProductCard({ id, onAdd }: { id: string; onAdd: (id: string) => void }) {
+  const router = useRouter();
+  const p = byId(id);
+  if (!p) return null;
+  const shop = shopOf(p);
+  return (
+    <div className="card fade-in" style={{ display: "flex", gap: 12, padding: 12, cursor: "pointer", transition: "box-shadow .2s", border: "1px solid var(--border)" }}
+      onMouseEnter={e => (e.currentTarget.style.boxShadow = "var(--shadow-hover)")}
+      onMouseLeave={e => (e.currentTarget.style.boxShadow = "")}
+    >
+      {/* Thumbnail */}
+      <div
+        onClick={() => router.push(`/product/${p.id}`)}
+        style={{ width: 72, height: 72, borderRadius: 10, overflow: "hidden", flex: "0 0 auto", background: "var(--surface-2)" }}
+      >
+        <img
+          src={`/images/products/${p.id}.png`}
+          alt={p.name}
+          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+          onError={e => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+        />
+      </div>
+      {/* Info */}
+      <div style={{ flex: 1, minWidth: 0 }} onClick={() => router.push(`/product/${p.id}`)}>
+        <div style={{ fontFamily: "var(--font-ui)", fontWeight: 600, fontSize: 14, lineHeight: 1.3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.name}</div>
+        <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 2 }}>{shop.name}{shop.verified && " ✓"}</div>
+        <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 4 }}>
+          <span style={{ fontFamily: "var(--font-ui)", fontWeight: 700, fontSize: 15, color: "var(--green)" }}>{money(p.price)}</span>
+          {p.old && <span style={{ fontSize: 12, color: "var(--text-muted)", textDecoration: "line-through" }}>{money(p.old)}</span>}
+          {p.tag && <span style={{ fontSize: 10.5, fontFamily: "var(--font-ui)", fontWeight: 700, background: p.tag === "deal" ? "var(--yellow)" : "var(--green-tint)", color: p.tag === "deal" ? "var(--green-deep)" : "var(--green)", padding: "2px 7px", borderRadius: 99 }}>{p.tag}</span>}
+        </div>
+      </div>
+      {/* Add button */}
+      <button
+        onClick={e => { e.stopPropagation(); onAdd(p.id); }}
+        className="btn btn-primary btn-sm"
+        style={{ flex: "0 0 auto", alignSelf: "center", height: 34, padding: "0 14px" }}
+      >
+        <I.plus size={14} /> Add
+      </button>
+    </div>
+  );
+}
+
+/* ── Chat bubble ── */
+function Bubble({ m, onAddProduct, onAddAll }: {
+  m: Message;
+  onAddProduct: (id: string) => void;
+  onAddAll: (ids: string[]) => void;
+}) {
   if (m.who === "user") {
     return (
       <div style={{ alignSelf: "flex-end", maxWidth: "78%", background: "var(--green)", color: "#fff", padding: "12px 16px", borderRadius: "16px 16px 4px 16px", fontSize: 15, lineHeight: 1.55 }} className="fade-in">
@@ -28,41 +78,99 @@ function Bubble({ m }: { m: Message }) {
       </div>
     );
   }
+
+  const hasProducts = (m.productIds?.length ?? 0) > 0;
+
   return (
-    <div className="fade-in" style={{ display: "flex", gap: 12, maxWidth: "84%" }}>
-      <div style={{ width: 32, height: 32, borderRadius: 99, background: "var(--green-tint)", display: "grid", placeItems: "center", flex: "0 0 auto" }}>
-        <Spark size={17} style={{ color: "var(--green)" }} className={m.thinking ? "spark-anim" : ""} />
+    <div className="fade-in" style={{ display: "flex", gap: 12, maxWidth: "90%", flexDirection: "column" }}>
+      <div style={{ display: "flex", gap: 12 }}>
+        <div style={{ width: 32, height: 32, borderRadius: 99, background: "var(--green-tint)", display: "grid", placeItems: "center", flex: "0 0 auto", marginTop: 2 }}>
+          <Spark size={17} style={{ color: "var(--green)" }} className={m.thinking ? "spark-anim" : ""} />
+        </div>
+        <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: "4px 16px 16px 16px", padding: "12px 16px", fontSize: 15, color: m.thinking ? "var(--text-muted)" : "var(--text-primary)", lineHeight: 1.6 }}>
+          {m.thinking ? (
+            <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <span className="dots-typing"><i /><i /><i /></span>
+              <span>{m.text}</span>
+            </span>
+          ) : m.text}
+        </div>
       </div>
-      <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: "4px 16px 16px 16px", padding: "12px 16px", fontSize: 15, color: m.thinking ? "var(--text-muted)" : "var(--text-primary)", lineHeight: 1.6 }}>
-        {m.thinking ? (
-          <span className="row gap-8">
-            <span className="dots-typing"><i /><i /><i /></span>
-            <span>{m.text}</span>
-          </span>
-        ) : m.text}
-      </div>
+
+      {/* Inline product cards */}
+      {hasProducts && (
+        <div style={{ marginLeft: 44, display: "flex", flexDirection: "column", gap: 8 }}>
+          {m.productIds!.map(id => (
+            <InlineProductCard key={id} id={id} onAdd={onAddProduct} />
+          ))}
+
+          {/* Add all button */}
+          <button
+            className="btn btn-primary"
+            style={{ alignSelf: "flex-start", marginTop: 4 }}
+            onClick={() => onAddAll(m.productIds!)}
+          >
+            <I.cart size={16} /> Add all to cart
+          </button>
+        </div>
+      )}
     </div>
   );
 }
 
+/* ── Right panel product row ── */
+function CartItem({ id, onRemove }: { id: string; onRemove: () => void }) {
+  const router = useRouter();
+  const p = byId(id);
+  if (!p) return null;
+  return (
+    <div className="card fade-in row gap-12" style={{ padding: 10 }}>
+      <div onClick={() => router.push(`/product/${p.id}`)} style={{ width: 54, height: 54, borderRadius: 10, overflow: "hidden", flex: "0 0 auto", background: "var(--surface-2)", cursor: "pointer" }}>
+        <img src={`/images/products/${p.id}.png`} alt={p.name}
+          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+          onError={e => { (e.currentTarget as HTMLImageElement).style.display = "none"; }} />
+      </div>
+      <div style={{ minWidth: 0, flex: 1, cursor: "pointer" }} onClick={() => router.push(`/product/${p.id}`)}>
+        <div style={{ fontFamily: "var(--font-ui)", fontWeight: 600, fontSize: 13, lineHeight: 1.3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.name}</div>
+        <div style={{ fontSize: 11.5, color: "var(--text-muted)", marginTop: 1 }}>{shopOf(p).name}</div>
+        <div style={{ fontFamily: "var(--font-ui)", fontWeight: 700, fontSize: 14, color: "var(--green)", marginTop: 2 }}>{money(p.price)}</div>
+      </div>
+      <button onClick={onRemove} style={{ color: "var(--text-muted)", flex: "0 0 auto" }}>
+        <I.close size={15} />
+      </button>
+    </div>
+  );
+}
+
+/* ── Page ── */
 export default function AssistantPage() {
   const router = useRouter();
   const { addToCart } = useCart();
 
   const [msgs, setMsgs] = useState<Message[]>([
-    { who: "ai", text: "Hi, I'm Celeste. Tell me what you're trying to do — a room to furnish, a gift to find, a vibe to create — and I'll build the perfect set across our shops." },
+    { who: "ai", text: "Hi! I'm Celeste — tell me what you need. A room to furnish, a gift to find, a vibe to create — and I'll find the perfect products from our shops." },
   ]);
   const [picked, setPicked] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [input, setInput] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
-
-  // Conversation history sent to Groq
   const historyRef = useRef<{ role: string; content: string }[]>([]);
 
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [msgs, picked]);
+
+  const addProduct = (id: string) => {
+    setPicked(prev => prev.includes(id) ? prev : [...prev, id]);
+  };
+
+  const addAll = (ids: string[]) => {
+    setPicked(prev => {
+      const set = new Set(prev);
+      ids.forEach(id => { if (byId(id)) set.add(id); });
+      return [...set];
+    });
+  };
 
   const send = async (text?: string) => {
     const t = (text || input).trim();
@@ -70,11 +178,8 @@ export default function AssistantPage() {
     setInput("");
     setLoading(true);
 
-    // Add user message to UI and history
     setMsgs(m => [...m, { who: "user", text: t }]);
     historyRef.current.push({ role: "user", content: t });
-
-    // Show thinking indicator
     setMsgs(m => [...m, { who: "ai", thinking: true, text: "Finding the best picks for you…" }]);
 
     try {
@@ -83,28 +188,16 @@ export default function AssistantPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messages: historyRef.current }),
       });
-
       const data = await res.json();
 
-      // Remove thinking bubble, add real response
-      setMsgs(m => [...m.filter(x => !x.thinking), { who: "ai", text: data.text }]);
+      setMsgs(m => [
+        ...m.filter(x => !x.thinking),
+        { who: "ai", text: data.text, productIds: data.productIds ?? [] },
+      ]);
 
-      // Add assistant reply to history
       historyRef.current.push({ role: "assistant", content: data.text });
-
-      // Add recommended products to cart panel
-      if (data.productIds?.length) {
-        setPicked(prev => {
-          const existing = new Set(prev);
-          const next = [...prev];
-          (data.productIds as string[]).forEach((id: string) => {
-            if (!existing.has(id) && byId(id)) next.push(id);
-          });
-          return next;
-        });
-      }
     } catch {
-      setMsgs(m => [...m.filter(x => !x.thinking), { who: "ai", text: "Sorry, I ran into an issue. Please try again." }]);
+      setMsgs(m => [...m.filter(x => !x.thinking), { who: "ai", text: "Sorry, something went wrong. Please try again." }]);
     } finally {
       setLoading(false);
     }
@@ -117,8 +210,6 @@ export default function AssistantPage() {
     picked.forEach(id => addToCart(id, 1));
     router.push("/cart");
   };
-
-  const removeItem = (id: string) => setPicked(p => p.filter(x => x !== id));
 
   return (
     <div style={{ height: "calc(100vh - 68px)", display: "flex", flexDirection: "column", background: "var(--bg)" }}>
@@ -137,9 +228,7 @@ export default function AssistantPage() {
             </div>
           </div>
           <div className="row gap-10">
-            {picked.length > 0 && (
-              <span className="badge badge-verified">{picked.length} items picked</span>
-            )}
+            {picked.length > 0 && <span className="badge badge-verified">{picked.length} items ready</span>}
             <span className="badge badge-verified">
               <span style={{ width: 7, height: 7, borderRadius: 99, background: "var(--success)", display: "inline-block" }} /> Live
             </span>
@@ -149,11 +238,13 @@ export default function AssistantPage() {
 
       <div style={{ flex: 1, display: "grid", gridTemplateColumns: "1fr 380px", minHeight: 0 }} className="assistant-grid">
 
-        {/* Chat column */}
+        {/* Chat */}
         <div style={{ display: "flex", flexDirection: "column", minHeight: 0, borderRight: "1px solid var(--border)" }}>
           <div ref={scrollRef} className="no-scrollbar" style={{ flex: 1, overflowY: "auto", padding: "28px 0" }}>
             <div className="container" style={{ maxWidth: 720, display: "flex", flexDirection: "column", gap: 18 }}>
-              {msgs.map((m, i) => <Bubble key={i} m={m} />)}
+              {msgs.map((m, i) => (
+                <Bubble key={i} m={m} onAddProduct={addProduct} onAddAll={addAll} />
+              ))}
 
               {msgs.length === 1 && (
                 <div className="col gap-8" style={{ marginTop: 8 }}>
@@ -174,29 +265,19 @@ export default function AssistantPage() {
           {/* Input */}
           <div style={{ flex: "0 0 auto", borderTop: "1px solid var(--border)", background: "var(--surface)", padding: "16px 0" }}>
             <div className="container" style={{ maxWidth: 720 }}>
-              <form onSubmit={(e) => { e.preventDefault(); send(); }} style={{ position: "relative", display: "flex", alignItems: "center" }}>
+              <form onSubmit={e => { e.preventDefault(); send(); }} style={{ position: "relative", display: "flex", alignItems: "center" }}>
                 <span style={{ position: "absolute", left: 16, color: "var(--green)" }}><Spark size={18} /></span>
-                <input
-                  className="input"
-                  value={input}
-                  onChange={e => setInput(e.target.value)}
-                  placeholder="Message Celeste…"
-                  disabled={loading}
-                  style={{ height: 52, paddingLeft: 44, paddingRight: 96, borderRadius: 999 }}
-                />
-                <div style={{ position: "absolute", right: 8, display: "flex", gap: 4 }}>
-                  <button
-                    type="submit"
-                    className="btn btn-primary"
-                    disabled={loading || !input.trim()}
-                    style={{ width: 40, height: 40, padding: 0, borderRadius: 999, opacity: loading ? 0.6 : 1 }}
-                  >
-                    {loading ? <span className="dots-typing"><i /><i /><i /></span> : <I.send size={17} />}
-                  </button>
-                </div>
+                <input className="input" value={input} onChange={e => setInput(e.target.value)}
+                  placeholder="Message Celeste…" disabled={loading}
+                  style={{ height: 52, paddingLeft: 44, paddingRight: 60, borderRadius: 999 }} />
+                <button type="submit" className="btn btn-primary"
+                  disabled={loading || !input.trim()}
+                  style={{ position: "absolute", right: 8, width: 40, height: 40, padding: 0, borderRadius: 999, opacity: loading ? 0.6 : 1 }}>
+                  {loading ? <span className="dots-typing"><i /><i /><i /></span> : <I.send size={17} />}
+                </button>
               </form>
               <div className="t-detail" style={{ textAlign: "center", marginTop: 8, fontSize: 11.5 }}>
-                Celeste AI · Groq inference · Always double-check before buying
+                Celeste AI · Groq · Click any product to view details
               </div>
             </div>
           </div>
@@ -212,31 +293,17 @@ export default function AssistantPage() {
             </div>
           </div>
 
-          <div className="no-scrollbar" style={{ flex: 1, overflowY: "auto", padding: 16 }}>
+          <div className="no-scrollbar" style={{ flex: 1, overflowY: "auto", padding: 14 }}>
             {picked.length === 0 ? (
-              <div className="col" style={{ alignItems: "center", justifyContent: "center", height: "100%", textAlign: "center", color: "var(--text-muted)", gap: 10, padding: 20 }}>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", textAlign: "center", color: "var(--text-muted)", gap: 10, padding: 20 }}>
                 <Spark size={28} className="spark-anim" style={{ color: "var(--green)" }} />
-                <span className="t-detail">Items the AI picks will appear here — across every vendor.</span>
+                <span className="t-detail">Click "Add" on any product<br/>the AI recommends to build your set.</span>
               </div>
             ) : (
               <div className="col gap-10">
-                {picked.map((id) => {
-                  const p = byId(id);
-                  if (!p) return null;
-                  return (
-                    <div key={id} className="card fade-in row gap-12" style={{ padding: 10 }}>
-                      <Ph label="" style={{ width: 54, height: 54, borderRadius: 10, flex: "0 0 auto" }} />
-                      <div style={{ minWidth: 0, flex: 1 }}>
-                        <div style={{ fontFamily: "var(--font-ui)", fontWeight: 600, fontSize: 13, lineHeight: 1.3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.name}</div>
-                        <div className="t-detail" style={{ fontSize: 11.5 }}>{shopOf(p).name}</div>
-                        <div className="pcard-price" style={{ fontSize: 14, marginTop: 2 }}>{money(p.price)}</div>
-                      </div>
-                      <button onClick={() => removeItem(id)} style={{ color: "var(--text-muted)", flex: "0 0 auto" }}>
-                        <I.close size={15} />
-                      </button>
-                    </div>
-                  );
-                })}
+                {picked.map(id => (
+                  <CartItem key={id} id={id} onRemove={() => setPicked(p => p.filter(x => x !== id))} />
+                ))}
               </div>
             )}
           </div>
@@ -252,7 +319,11 @@ export default function AssistantPage() {
                 <b style={{ fontFamily: "var(--font-display)", fontSize: 22, color: "var(--green)" }}>{money(total)}</b>
               </div>
               <button className="btn btn-primary btn-block btn-lg" onClick={goCart}>
-                Add all to cart <I.arrowright size={17} />
+                Checkout <I.arrowright size={17} />
+              </button>
+              <button className="btn btn-secondary btn-block" style={{ marginTop: 8 }}
+                onClick={() => { picked.forEach(id => addToCart(id, 1)); }}>
+                Add all to cart
               </button>
             </div>
           )}
