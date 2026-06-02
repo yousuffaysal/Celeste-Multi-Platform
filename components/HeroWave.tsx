@@ -46,7 +46,7 @@ export default function HeroWave() {
         ctx.fill();
       });
 
-      t += 1;
+      t += 0.3;
       animId = requestAnimationFrame(draw);
     };
 
@@ -65,6 +65,8 @@ export default function HeroWave() {
       background: "#ffffff",
       pointerEvents: "none",
       overflow: "hidden",
+      WebkitMaskImage: "linear-gradient(to bottom, black 60%, transparent 100%)",
+      maskImage: "linear-gradient(to bottom, black 60%, transparent 100%)",
     }}>
       <canvas
         ref={canvasRef}

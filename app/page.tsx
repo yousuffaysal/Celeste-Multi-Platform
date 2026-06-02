@@ -152,8 +152,10 @@ export default function HomePage() {
   return (
     <div>
       {/* HERO */}
-      <section style={{ position: "relative", borderBottom: "1px solid var(--border)" }}>
+      <section style={{ position: "relative" }}>
         <HeroWave />
+        {/* Bottom fade blending into next section */}
+        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 120, background: "linear-gradient(to bottom, transparent, var(--bg))", zIndex: 2, pointerEvents: "none" }} />
         <div className="container" style={{ paddingTop: 56, paddingBottom: 56, position: "relative", zIndex: 1 }}>
           <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr)", gap: 36 }}>
             <div style={{ maxWidth: 760, margin: "0 auto", textAlign: "center" }}>

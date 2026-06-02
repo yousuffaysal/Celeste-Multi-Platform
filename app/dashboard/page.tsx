@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Celeste, CelesteMark, Spark, I } from "@/components/icons";
 import { Avatar, TONE } from "@/components/dashboard/DashComponents";
 import AdminDash from "@/components/dashboard/AdminDash";
@@ -58,7 +58,15 @@ export default function DashboardPage() {
   const [navOpen, setNavOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
+  const [customerName, setCustomerName] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("cel_profile_name") || "Alex Morgan";
+    }
+    return "Alex Morgan";
+  });
+
   const cfg = ROLES[role];
+  const displayName = role === "customer" ? customerName : cfg.who;
 
   const switchRole = (r: Role) => { setRole(r); setSection("overview"); setNavOpen(false); };
   const goSection = (s: string) => {
@@ -134,9 +142,9 @@ export default function DashboardPage() {
 
         {/* User box */}
         <div className="dash-userbox">
-          <Avatar name={cfg.avatar} size={34} />
+          <Avatar name={displayName} size={34} />
           <div className="ub-details">
-            <div className="ub-name">{cfg.who}</div>
+            <div className="ub-name">{displayName}</div>
             <div className="ub-role">{cfg.role}</div>
           </div>
           <button className="ub-logout" title="Sign out"><I.logout size={17} /></button>
@@ -218,7 +226,7 @@ export default function DashboardPage() {
               )}
             </div>
 
-            <Avatar name={cfg.avatar} size={34} />
+            <Avatar name={displayName} size={34} />
           </div>
         </div>
 
@@ -227,7 +235,7 @@ export default function DashboardPage() {
           <div className="dash-inner wide" key={role + section}>
             {role === "admin"    && <AdminDash    section={section} />}
             {role === "vendor"   && <VendorDash   section={section} />}
-            {role === "customer" && <CustomerDash section={section} openAssistant={openAssistant} />}
+            {role === "customer" && <CustomerDash section={section} openAssistant={openAssistant} goSection={goSection} onNameChange={setCustomerName} />}
           </div>
         </div>
 

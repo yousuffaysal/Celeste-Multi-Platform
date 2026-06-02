@@ -1,9 +1,9 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { Spark, I } from "@/components/icons";
 import { Pill, Panel, Kpi, Avatar, AICallout, DashHead, StatGrid, DashGrid } from "./DashComponents";
 import { AreaChart, MiniRing, SegBar, CatList } from "./DashViz";
-import { PayCard, QuickActions, TxnList } from "./DashPay";
+import { PayCard, QuickActions, TxnList, BrandMark, CardBrand } from "./DashPay";
 import {
   SAVED_SETS, MY_ORDERS, TRACK_STEPS, ORDER_STATUS, TXN_CUSTOMER, SPEND_CATS, GOALS, PRODUCTS, money, byId, shopOf,
 } from "@/lib/dash-data";
@@ -11,14 +11,14 @@ import Ph from "@/components/Ph";
 import Stars from "@/components/Stars";
 import ProductCard from "@/components/ProductCard";
 
-export default function CustomerDash({ section, openAssistant }: { section: string; openAssistant: () => void }) {
+export default function CustomerDash({ section, openAssistant, goSection, onNameChange }: { section: string; openAssistant: () => void; goSection: (s: string) => void; onNameChange?: (name: string) => void }) {
   switch (section) {
     case "orders":    return <CustOrders />;
     case "sets":      return <CustSets openAssistant={openAssistant} />;
     case "wishlist":  return <CustWishlist />;
     case "assistant": return <CustAssistant openAssistant={openAssistant} />;
-    case "account":   return <CustAccount />;
-    default:          return <CustOverview openAssistant={openAssistant} />;
+    case "account":   return <CustAccount onNameChange={onNameChange} />;
+    default:          return <CustOverview openAssistant={openAssistant} goSection={goSection} />;
   }
 }
 
@@ -59,7 +59,7 @@ const SetCard = ({ s }: { s: typeof SAVED_SETS[number] }) => (
   </div>
 );
 
-function CustOverview({ openAssistant }: { openAssistant: () => void }) {
+function CustOverview({ openAssistant, goSection }: { openAssistant: () => void; goSection: (s: string) => void }) {
   return (
     <div>
       <DashHead title="Hello, Alex" subtitle="Here's what's happening with your orders and picks"
@@ -124,7 +124,7 @@ function CustOverview({ openAssistant }: { openAssistant: () => void }) {
           <Panel pad={18}>
             <div className="row" style={{ justifyContent: "space-between", marginBottom: 12 }}>
               <div className="t-detail">Celeste wallet</div>
-              <button className="btn btn-ghost btn-sm" style={{ height: 28 }}><I.plus size={13} /> Add card</button>
+              <button className="btn btn-ghost btn-sm" style={{ height: 28 }} onClick={() => goSection("account")}><I.plus size={13} /> Add card</button>
             </div>
             <PayCard brand="visa" variant="green" label="Celeste balance" name="Alex Morgan" number="7890" exp="03/30" />
             <div style={{ marginTop: 16 }}>
@@ -284,27 +284,376 @@ function CustAssistant({ openAssistant }: { openAssistant: () => void }) {
   );
 }
 
-function CustAccount() {
+/* ── Types ── */
+interface SavedCard {
+  id: string;
+  brand: CardBrand;
+  variant: "green" | "dark" | "yellow";
+  number: string;
+  name: string;
+  exp: string;
+  isDefault: boolean;
+}
+
+const CARD_VARIANTS: Array<"green" | "dark" | "yellow"> = ["green", "dark", "yellow"];
+
+const CARD_BRANDS: Array<{ id: CardBrand; label: string }> = [
+  { id: "visa",       label: "Visa" },
+  { id: "mastercard", label: "Mastercard" },
+  { id: "amex",       label: "Amex" },
+  { id: "discover",   label: "Discover" },
+  { id: "maestro",    label: "Maestro" },
+];
+
+function detectBrand(num: string): CardBrand {
+  const first = num.replace(/\s/g, "")[0];
+  if (first === "3") return "amex";
+  if (first === "4") return "visa";
+  if (first === "5") return "mastercard";
+  if (first === "6") return "discover";
+  return "visa";
+}
+
+/* ── Stacked card wallet ── */
+function CardStack({
+  cards, activeId, onSelect, onSetDefault, onRemove,
+}: {
+  cards: SavedCard[];
+  activeId: string;
+  onSelect: (id: string) => void;
+  onSetDefault: (id: string) => void;
+  onRemove: (id: string) => void;
+}) {
+  const active = cards.find(c => c.id === activeId) ?? cards[0];
+  const others = cards.filter(c => c.id !== activeId);
+
+  return (
+    <div className="col" style={{ gap: 0 }}>
+      {/* ── Active card — fully expanded ── */}
+      <div style={{ transition: "all .3s cubic-bezier(.4,0,.2,1)" }}>
+        <PayCard
+          brand={active.brand}
+          variant={active.variant}
+          label={active.isDefault ? "Default · debit" : "Credit card"}
+          name={active.name}
+          number={active.number}
+          exp={active.exp}
+        />
+        {/* Active card actions */}
+        <div className="row gap-8" style={{ marginTop: 10, marginBottom: others.length ? 4 : 0 }}>
+          {!active.isDefault && (
+            <button onClick={() => onSetDefault(active.id)}
+              style={{ height: 28, padding: "0 12px", borderRadius: 99, fontSize: 12,
+                fontFamily: "var(--font-ui)", fontWeight: 600, cursor: "pointer",
+                background: "var(--green-tint)", color: "var(--green)", border: "1px solid rgba(1,97,78,.15)" }}>
+              Set as default
+            </button>
+          )}
+          {active.isDefault && (
+            <span style={{ height: 28, padding: "0 12px", borderRadius: 99, fontSize: 12,
+              fontFamily: "var(--font-ui)", fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 5,
+              background: "var(--green-tint)", color: "var(--green)" }}>
+              <I.check size={12} /> Default card
+            </span>
+          )}
+          {cards.length > 1 && (
+            <button onClick={() => onRemove(active.id)}
+              style={{ height: 28, padding: "0 12px", borderRadius: 99, fontSize: 12,
+                fontFamily: "var(--font-ui)", fontWeight: 600, cursor: "pointer",
+                background: "transparent", color: "var(--text-muted)", border: "1px solid var(--border)",
+                display: "inline-flex", alignItems: "center", gap: 5 }}>
+              <I.trash size={12} /> Remove
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* ── Collapsed cards — strip only ── */}
+      {others.map((c) => {
+        const gradients: Record<string, string> = {
+          green:  "linear-gradient(135deg, #01614E 0%, #014A3B 60%, #003B2F 100%)",
+          dark:   "linear-gradient(135deg, #1b2622 0%, #11201B 100%)",
+          yellow: "linear-gradient(135deg, #FBE249 0%, #F2D21F 100%)",
+        };
+        const bg  = gradients[c.variant] ?? gradients.dark;
+        const fg  = c.variant === "yellow" ? "rgba(0,59,47,.8)"  : "rgba(255,255,255,.85)";
+        const sub = c.variant === "yellow" ? "rgba(0,59,47,.5)"  : "rgba(255,255,255,.5)";
+        const masked = c.brand === "amex"
+          ? `•••• •••••• ${c.number}`
+          : `•••• •••• •••• ${c.number}`;
+        return (
+          <div
+            key={c.id}
+            onClick={() => onSelect(c.id)}
+            style={{
+              background: bg, borderRadius: 14, padding: "11px 18px", marginTop: 6,
+              cursor: "pointer", display: "flex", alignItems: "center", gap: 12,
+              transition: "transform .15s, box-shadow .15s",
+              boxShadow: "0 4px 12px rgba(0,0,0,.12)",
+            }}
+            onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.transform = "translateY(-1px)"; (e.currentTarget as HTMLDivElement).style.boxShadow = "0 8px 20px rgba(0,0,0,.18)"; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.transform = ""; (e.currentTarget as HTMLDivElement).style.boxShadow = "0 4px 12px rgba(0,0,0,.12)"; }}
+          >
+            <span style={{ display: "inline-flex", minWidth: 38, transform: "scale(.8)", transformOrigin: "left center" }}>
+              <BrandMark brand={c.brand} color={fg} />
+            </span>
+            <span style={{ fontFamily: "var(--font-ui)", fontSize: 13.5, letterSpacing: "1.5px", color: fg, flex: 1 }}>
+              {masked}
+            </span>
+            <span style={{ fontSize: 12, color: sub, fontFamily: "var(--font-ui)" }}>{c.exp}</span>
+            <I.chevdown size={14} style={{ color: sub, flexShrink: 0 }} />
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/* ── Add card form ── */
+function AddCardForm({ onAdd, onCancel }: { onAdd: (c: Omit<SavedCard, "id" | "isDefault">) => void; onCancel: () => void }) {
+  const [brand,   setBrand]   = useState<CardBrand>("visa");
+  const [num,     setNum]     = useState("");
+  const [name,    setName]    = useState("");
+  const [exp,     setExp]     = useState("");
+  const [cvv,     setCvv]     = useState("");
+  const [variant, setVariant] = useState<"green" | "dark" | "yellow">("dark");
+  const [formErr, setFormErr] = useState("");
+
+  const isAmex  = brand === "amex";
+  const maxLen  = isAmex ? 17 : 19; // "3782 822463 10005" vs "4111 1111 1111 1111"
+  const cvvLen  = isAmex ? 4 : 3;
+  const numPh   = isAmex ? "3782 822463 10005" : "1234 5678 9012 3456";
+
+  const fmt4 = (v: string) => {
+    const d = v.replace(/\D/g, "");
+    if (isAmex) {
+      // Amex: 4-6-5
+      const p1 = d.slice(0, 4);
+      const p2 = d.slice(4, 10);
+      const p3 = d.slice(10, 15);
+      return [p1, p2, p3].filter(Boolean).join(" ");
+    }
+    return d.slice(0, 16).replace(/(.{4})/g, "$1 ").trim();
+  };
+  const fmtExp = (v: string) => {
+    const d = v.replace(/\D/g, "").slice(0, 4);
+    return d.length > 2 ? d.slice(0, 2) + "/" + d.slice(2) : d;
+  };
+
+  /* Auto-detect brand from number prefix when user types */
+  function handleNumChange(raw: string) {
+    const formatted = fmt4(raw);
+    setNum(formatted);
+    const first = raw.replace(/\D/g, "")[0];
+    if (first === "3") setBrand("amex");
+    else if (first === "4") setBrand("visa");
+    else if (first === "5") setBrand("mastercard");
+    else if (first === "6") setBrand("discover");
+  }
+
+  function submit(e: React.FormEvent) {
+    e.preventDefault();
+    const clean = num.replace(/\s/g, "");
+    const minLen = isAmex ? 15 : 16;
+    if (clean.length < minLen) { setFormErr(`Enter a valid ${brand} card number`); return; }
+    if (!name.trim())          { setFormErr("Enter the cardholder name"); return; }
+    if (exp.length < 5)        { setFormErr("Enter a valid expiry MM/YY"); return; }
+    if (cvv.length < cvvLen)   { setFormErr(`Enter a valid ${isAmex ? "4-digit" : "3-digit"} CVV`); return; }
+    setFormErr("");
+    onAdd({ brand, variant, number: clean.slice(-4), name: name.trim(), exp });
+  }
+
+  return (
+    <div style={{ background: "var(--surface-2)", borderRadius: 14, padding: "18px 18px 16px", border: "1px solid var(--border)" }}>
+      <form className="col gap-12" onSubmit={submit}>
+
+        {/* ── Brand picker ── */}
+        <div>
+          <label className="field-label">Card network</label>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 6 }}>
+            {CARD_BRANDS.map(b => (
+              <button key={b.id} type="button" onClick={() => { setBrand(b.id); setNum(""); }}
+                style={{
+                  display: "inline-flex", alignItems: "center", gap: 7,
+                  height: 36, padding: "0 12px", borderRadius: 10, cursor: "pointer",
+                  background: brand === b.id ? "var(--green)" : "var(--surface)",
+                  border: `1.5px solid ${brand === b.id ? "var(--green)" : "var(--border)"}`,
+                  transition: "all .14s",
+                }}>
+                <span style={{ display: "inline-flex", transform: "scale(.75)", transformOrigin: "left center" }}>
+                  <BrandMark brand={b.id} color={brand === b.id ? "#fff" : "var(--text-secondary)"} />
+                </span>
+                <span style={{ fontSize: 12.5, fontFamily: "var(--font-ui)", fontWeight: 600,
+                  color: brand === b.id ? "#fff" : "var(--text-secondary)" }}>
+                  {b.label}
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* ── Card fields ── */}
+        <div><label className="field-label">Card number</label>
+          <input className="input" placeholder={numPh} value={num} autoFocus
+            onChange={e => handleNumChange(e.target.value)} maxLength={maxLen} inputMode="numeric" /></div>
+        <div><label className="field-label">Cardholder name</label>
+          <input className="input" placeholder="Alex Morgan" value={name}
+            onChange={e => setName(e.target.value)} /></div>
+        <div className="row gap-12">
+          <div style={{ flex: 1 }}><label className="field-label">Expiry</label>
+            <input className="input" placeholder="MM/YY" value={exp}
+              onChange={e => setExp(fmtExp(e.target.value))} maxLength={5} inputMode="numeric" /></div>
+          <div style={{ flex: 1 }}>
+            <label className="field-label">CVV {isAmex && <span style={{ color: "var(--text-muted)", fontWeight: 400 }}>(4 digits)</span>}</label>
+            <input className="input" type="password" placeholder={isAmex ? "••••" : "•••"} value={cvv}
+              onChange={e => setCvv(e.target.value.replace(/\D/g, "").slice(0, isAmex ? 4 : 3))} maxLength={isAmex ? 4 : 3} inputMode="numeric" /></div>
+        </div>
+
+        {/* ── Live card preview ── */}
+        <PayCard brand={brand} variant={variant}
+          label="Preview"
+          name={name || "Cardholder Name"}
+          number={num.replace(/\s/g, "").slice(-4) || "0000"}
+          exp={exp || "MM/YY"} />
+
+        {/* ── Card style picker ── */}
+        <div className="row gap-8" style={{ alignItems: "center" }}>
+          <span style={{ fontSize: 12, fontFamily: "var(--font-ui)", color: "var(--text-muted)" }}>Card style:</span>
+          {CARD_VARIANTS.map(v => (
+            <button key={v} type="button" onClick={() => setVariant(v)} style={{
+              height: 26, padding: "0 12px", borderRadius: 99, fontSize: 12,
+              fontFamily: "var(--font-ui)", fontWeight: 600, cursor: "pointer",
+              background: variant === v ? "var(--green)" : "var(--surface)",
+              color: variant === v ? "#fff" : "var(--text-secondary)",
+              border: `1.5px solid ${variant === v ? "var(--green)" : "var(--border)"}`,
+            }}>
+              {v.charAt(0).toUpperCase() + v.slice(1)}
+            </button>
+          ))}
+        </div>
+
+        {formErr && <div style={{ fontSize: 12.5, color: "var(--error)", fontFamily: "var(--font-ui)" }}>{formErr}</div>}
+        <div className="row gap-10">
+          <button type="submit" className="btn btn-primary btn-sm">Add card</button>
+          <button type="button" className="btn btn-secondary btn-sm" onClick={onCancel}>Cancel</button>
+        </div>
+      </form>
+    </div>
+  );
+}
+
+/* ── localStorage helpers (SSR-safe) ── */
+function lsGet(key: string, fallback: string): string {
+  if (typeof window === "undefined") return fallback;
+  return localStorage.getItem(key) ?? fallback;
+}
+function lsGetJSON<T>(key: string, fallback: T): T {
+  if (typeof window === "undefined") return fallback;
+  try { const v = localStorage.getItem(key); return v ? (JSON.parse(v) as T) : fallback; } catch { return fallback; }
+}
+
+const DEFAULT_CARDS: SavedCard[] = [
+  { id: "c1", brand: "visa",       variant: "green", number: "4242", name: "Alex Morgan", exp: "03/30", isDefault: true  },
+  { id: "c2", brand: "mastercard", variant: "dark",  number: "8819", name: "Alex Morgan", exp: "07/27", isDefault: false },
+];
+
+
+/* ── Account section ── */
+function CustAccount({ onNameChange }: { onNameChange?: (name: string) => void }) {
+  /* Saved (displayed) values — only update after Save */
+  const [dispName,  setDispName]  = useState(() => lsGet("cel_profile_name",  "Alex Morgan"));
+  const [dispEmail, setDispEmail] = useState(() => lsGet("cel_profile_email", "alex@email.com"));
+
+  /* Editing (form) values — update on every keystroke */
+  const [pName,  setPName]  = useState(() => lsGet("cel_profile_name",  "Alex Morgan"));
+  const [pEmail, setPEmail] = useState(() => lsGet("cel_profile_email", "alex@email.com"));
+  const [pPhone, setPPhone] = useState(() => lsGet("cel_profile_phone", "(555) 012-3456"));
+  const [saving, setSaving] = useState(false);
+  const [saved,  setSaved]  = useState(false);
+
+  function handleSave(e: React.FormEvent) {
+    e.preventDefault();
+    setSaving(true);
+    const name  = pName.trim()  || "Alex Morgan";
+    const email = pEmail.trim() || "alex@email.com";
+    localStorage.setItem("cel_profile_name",  name);
+    localStorage.setItem("cel_profile_email", email);
+    localStorage.setItem("cel_profile_phone", pPhone.trim());
+    setDispName(name);
+    setDispEmail(email);
+    onNameChange?.(name);
+    setTimeout(() => { setSaving(false); setSaved(true); setTimeout(() => setSaved(false), 2500); }, 400);
+  }
+
+  /* Cards — hydrate from localStorage */
+  const [cards, setCards] = useState<SavedCard[]>(() =>
+    lsGetJSON<SavedCard[]>("cel_cards", DEFAULT_CARDS)
+  );
+  const [activeCardId, setActiveCardId] = useState<string>(() => {
+    const saved = lsGetJSON<SavedCard[]>("cel_cards", DEFAULT_CARDS);
+    return saved.find(c => c.isDefault)?.id ?? saved[0]?.id ?? "c1";
+  });
+  const [showForm, setShowForm] = useState(false);
+
+  /* Persist cards whenever they change */
+  function persistCards(next: SavedCard[]) {
+    setCards(next);
+    localStorage.setItem("cel_cards", JSON.stringify(next));
+  }
+
+  function addCard(data: Omit<SavedCard, "id" | "isDefault">) {
+    const id = "c" + Date.now();
+    const next = [...cards, { ...data, id, isDefault: false }];
+    persistCards(next);
+    setActiveCardId(id);
+    setShowForm(false);
+  }
+
+  function removeCard(id: string) {
+    const next = cards.filter(c => c.id !== id);
+    if (cards.find(c => c.id === id)?.isDefault && next.length) next[0].isDefault = true;
+    persistCards(next);
+    setActiveCardId(prev => prev === id ? (next[0]?.id ?? "") : prev);
+  }
+
+  function setDefault(id: string) {
+    persistCards(cards.map(c => ({ ...c, isDefault: c.id === id })));
+  }
+
   return (
     <div>
       <DashHead title="Account" subtitle="Profile, cards, addresses & payment" />
       <div className="dash-bento">
+
+        {/* Left column */}
         <div className="col gap-16">
           <Panel title="Profile">
             <div className="row gap-14" style={{ marginBottom: 18 }}>
-              <Avatar name="Alex Morgan" size={56} />
+              <Avatar name={dispName} size={56} />
               <div>
-                <div style={{ fontFamily: "var(--font-ui)", fontWeight: 600, fontSize: 16 }}>Alex Morgan</div>
-                <div className="t-detail">alex@email.com · Member since 2022</div>
+                <div style={{ fontFamily: "var(--font-ui)", fontWeight: 600, fontSize: 16 }}>{dispName}</div>
+                <div className="t-detail">{dispEmail} · Member since 2022</div>
               </div>
             </div>
-            <div className="col gap-14">
-              <div><label className="field-label">Full name</label><input className="input" defaultValue="Alex Morgan" /></div>
-              <div><label className="field-label">Email</label><input className="input" defaultValue="alex@email.com" /></div>
-              <div><label className="field-label">Phone</label><input className="input" defaultValue="(555) 012-3456" /></div>
-              <button className="btn btn-primary" style={{ alignSelf: "flex-start" }}>Save changes</button>
-            </div>
+            <form className="col gap-14" onSubmit={handleSave}>
+              <div><label className="field-label">Full name</label>
+                <input className="input" value={pName} onChange={e => setPName(e.target.value)} /></div>
+              <div><label className="field-label">Email</label>
+                <input className="input" type="email" value={pEmail} onChange={e => setPEmail(e.target.value)} /></div>
+              <div><label className="field-label">Phone</label>
+                <input className="input" value={pPhone} onChange={e => setPPhone(e.target.value)} /></div>
+              {saved && (
+                <div style={{ background: "var(--green-tint)", border: "1px solid rgba(1,97,78,.18)", borderRadius: 10, padding: "10px 14px", display: "flex", alignItems: "center", gap: 8 }}>
+                  <I.check size={15} style={{ color: "var(--green)", flex: "0 0 auto" }} />
+                  <span style={{ fontSize: 13.5, color: "var(--green-deep)", fontFamily: "var(--font-ui)", fontWeight: 500 }}>Profile saved — changes are now showing.</span>
+                </div>
+              )}
+              <button type="submit" className="btn btn-primary" style={{ alignSelf: "flex-start" }} disabled={saving}>
+                {saving ? "Saving…" : "Save changes"}
+              </button>
+            </form>
           </Panel>
+
           <Panel title="Addresses" action={<button className="btn btn-ghost btn-sm"><I.plus size={14} /> Add</button>}>
             {([["Home","123 Linden Ave, Portland, OR 97201",true],["Work","500 Market St, Portland, OR 97204",false]] as [string,string,boolean][]).map(([t,a,def],i) => (
               <div key={i} className="row gap-12" style={{ padding: "12px 0", borderTop: i ? "1px solid var(--border)" : "none" }}>
@@ -318,27 +667,40 @@ function CustAccount() {
             ))}
           </Panel>
         </div>
+
+        {/* Right column */}
         <div className="col gap-16">
-          <Panel title="Payment methods" action={<button className="btn btn-ghost btn-sm"><I.plus size={14} /> Add card</button>}>
-            <div className="col gap-16">
-              <PayCard brand="visa" variant="green" label="Default · debit" name="Alex Morgan" number="4242" exp="03/30" />
-              <PayCard brand="mastercard" variant="dark" label="Credit card" name="Alex Morgan" number="8819" exp="07/27" />
-            </div>
-            <div className="col" style={{ marginTop: 8 }}>
-              {([["Visa","4242",true],["Mastercard","8819",false]] as [string,string,boolean][]).map(([brand,last,def],i) => (
-                <div key={i} className="row gap-12" style={{ padding: "12px 0", borderTop: "1px solid var(--border)" }}>
-                  <I.card size={18} style={{ color: "var(--green)", flex: "0 0 auto" }} />
-                  <div style={{ flex: 1 }}>
-                    <span className="row gap-8">
-                      <b style={{ fontFamily: "var(--font-ui)", fontSize: 13.5 }}>{brand} ···· {last}</b>
-                      {def && <Pill tone="success">Default</Pill>}
-                    </span>
-                  </div>
-                  <button style={{ color: "var(--text-muted)" }}><I.more size={16} /></button>
-                </div>
-              ))}
-            </div>
+          <Panel
+            title={`Payment methods (${cards.length})`}
+            action={!showForm
+              ? <button className="btn btn-ghost btn-sm" onClick={() => setShowForm(true)}><I.plus size={14} /> Add card</button>
+              : null}
+          >
+            {cards.length > 0 && !showForm && (
+              <CardStack
+                cards={cards}
+                activeId={activeCardId}
+                onSelect={id => setActiveCardId(id)}
+                onSetDefault={setDefault}
+                onRemove={removeCard}
+              />
+            )}
+
+            {showForm && (
+              <AddCardForm onAdd={addCard} onCancel={() => setShowForm(false)} />
+            )}
+
+            {cards.length === 0 && !showForm && (
+              <div style={{ textAlign: "center", padding: "28px 0", color: "var(--text-muted)" }}>
+                <I.card size={32} style={{ opacity: .3, marginBottom: 10 }} />
+                <div style={{ fontSize: 13.5, fontFamily: "var(--font-ui)" }}>No cards saved yet</div>
+                <button className="btn btn-primary btn-sm" style={{ marginTop: 12 }} onClick={() => setShowForm(true)}>
+                  <I.plus size={14} /> Add your first card
+                </button>
+              </div>
+            )}
           </Panel>
+
           <Panel title="Celeste credit" ai pad={18}>
             <div className="row" style={{ justifyContent: "space-between", alignItems: "center" }}>
               <div>

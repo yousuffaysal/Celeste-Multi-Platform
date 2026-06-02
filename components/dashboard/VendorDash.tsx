@@ -331,7 +331,7 @@ function VendorPayouts() {
               <div className="t-detail">Linked payout card</div>
               <button className="btn btn-ghost btn-sm" style={{ height: 28 }}><I.plus size={13} /> Add</button>
             </div>
-            <PayCard brand="mastercard" variant="green" label="Payout · debit" name="Mori Ceramics" number="4180" exp="08/28" />
+            <PayCard brand="mastercard" variant="dark" label="Payout · debit" name="Mori Ceramics" number="4180" exp="08/28" />
             <div style={{ marginTop: 16 }}>
               <QuickActions actions={[
                 { icon: I.coins, label: "Withdraw" }, { icon: I.send, label: "Transfer" },
