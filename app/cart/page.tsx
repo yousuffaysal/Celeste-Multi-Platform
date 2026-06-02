@@ -3,7 +3,6 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Spark, I } from "@/components/icons";
 import AIChip from "@/components/AIChip";
-import Ph from "@/components/Ph";
 import { SHOPS, PRODUCTS, byId, money } from "@/lib/data";
 import { useCart } from "@/lib/cart-context";
 
@@ -188,7 +187,9 @@ export default function CartPage() {
                     </div>
                     {rows.map(({ p, qty }) => p && (
                       <div key={p.id} className="row" style={{ padding: 16, gap: 16, borderTop: "1px solid var(--border)" }}>
-                        <Ph label="" style={{ width: 92, height: 92, borderRadius: 12, flex: "0 0 auto", cursor: "pointer" }} />
+                        <div onClick={() => router.push(`/product/${p.id}`)} style={{ width: 92, height: 92, borderRadius: 12, flex: "0 0 auto", overflow: "hidden", background: "var(--surface-2)", cursor: "pointer" }}>
+                          <img src={`/images/products/${p.id}.png`} alt={p.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} onError={e => { (e.currentTarget as HTMLImageElement).style.display = "none"; }} />
+                        </div>
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div onClick={() => router.push(`/product/${p.id}`)} style={{ fontFamily: "var(--font-ui)", fontWeight: 600, fontSize: 15.5, cursor: "pointer" }}>{p.name}</div>
                           <div className="t-detail" style={{ marginTop: 2 }}>Matte Brass · In stock</div>
@@ -219,7 +220,9 @@ export default function CartPage() {
                   <div className="hscroll">
                     {PRODUCTS.filter(p => !cart.find(c => c.id === p.id)).slice(0, 6).map(p => (
                       <div key={p.id} className="row gap-12" style={{ width: 250, border: "1px solid var(--border)", borderRadius: 12, padding: 10 }}>
-                        <Ph label="" style={{ width: 50, height: 50, borderRadius: 8, flex: "0 0 auto" }} />
+                        <div style={{ width: 50, height: 50, borderRadius: 8, flex: "0 0 auto", overflow: "hidden", background: "var(--surface-2)" }}>
+                          <img src={`/images/products/${p.id}.png`} alt={p.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} onError={e => { (e.currentTarget as HTMLImageElement).style.display = "none"; }} />
+                        </div>
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{ fontFamily: "var(--font-ui)", fontWeight: 600, fontSize: 13, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.name}</div>
                           <div className="pcard-price" style={{ fontSize: 13 }}>{money(p.price)}</div>
