@@ -90,12 +90,12 @@ export async function POST(req: NextRequest) {
     const raw: string = data.choices?.[0]?.message?.content ?? "";
 
     // Parse structured response
-    const descMatch = raw.match(/DESCRIPTION:\s*(.+?)(?:\n|RESPONSE:|MATCH:|$)/s);
-    const respMatch = raw.match(/RESPONSE:\s*(.+?)(?:\n\n|MATCH:|$)/s);
+    const descMatch = raw.match(/DESCRIPTION:\s*(.+?)(?:\n|RESPONSE:|MATCH:|$)/);
+    const respMatch = raw.match(/RESPONSE:\s*([\s\S]+?)(?:\n\n|MATCH:|$)/);
     let matchIds    = [...raw.matchAll(/MATCH:(p\d+)/g)].map(m => m[1]);
 
     const description = descMatch?.[1]?.trim() ?? "";
-    const response    = respMatch?.[1]?.trim() ?? raw.replace(/MATCH:p\d+\n?/g, "").replace(/DESCRIPTION:.+?\n/s, "").replace(/RESPONSE:/g, "").trim();
+    const response    = respMatch?.[1]?.trim() ?? raw.replace(/MATCH:p\d+\n?/g, "").replace(/DESCRIPTION:[^\n]+\n/, "").replace(/RESPONSE:/g, "").trim();
 
     // Fallback: if AI mentioned no MATCH lines but referenced a product name in text,
     // scan catalog for name matches and add them automatically
