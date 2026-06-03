@@ -59,7 +59,7 @@ export default function Footer() {
         </div>
         <hr style={{ margin: "36px 0 20px", border: "none", borderTop: "1px solid rgba(255,255,255,0.15)" }} />
         <div className="row" style={{ justifyContent: "space-between", flexWrap: "wrap", gap: 14, color: "rgba(255,255,255,0.5)" }}>
-          <span className="t-detail" style={{ color: "inherit" }}>© 2026 Celeste. Calm commerce, intelligently done.</span>
+          <span className="t-detail" style={{ color: "inherit" }}>© 2026 Celeste. Calm commerce, intelligently done. · A concept by <a href="https://foxmenstudio.com" target="_blank" rel="noopener noreferrer" style={{ color: "rgba(255,255,255,0.7)", textDecoration: "none" }}>Foxmen Studio</a></span>
           <div className="row gap-16">
             <span className="t-detail" style={{ color: "inherit" }}>Privacy</span>
             <span className="t-detail" style={{ color: "inherit" }}>Terms</span>
