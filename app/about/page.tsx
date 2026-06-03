@@ -364,10 +364,10 @@ export default function AboutPage() {
   ];
 
   const timeline: TLItem[] = [
-    { year: "2024", title: "Concept born at Foxmen Studio", body: "Foxmen Studio set out to reimagine e-commerce — what if shopping started with a sentence, not a search bar?" },
-    { year: "2025", title: "Design & prototype",            body: "The Celeste concept took shape: AI-native, multivendor, one cart. Built as a flagship studio product." },
-    { year: "2025", title: "Full platform build",           body: "From design system to AI assistant, visual search, vendor dashboard, and real-time checkout — all crafted in-house." },
-    { year: "2026", title: "Celeste concept launch",        body: "Launched publicly as a Foxmen Studio concept product — a vision of what calm, intelligent commerce should feel like." },
+    { year: "2025", title: "Foxmen Studio founded",         body: "Yousuf H Faysal founded Foxmen Studio — a design & technology studio built to create thoughtful, human-centred digital products." },
+    { year: "2025", title: "Celeste concept born",          body: "The idea: what if shopping started with a sentence instead of a search bar? Celeste was conceived as Foxmen Studio's flagship concept." },
+    { year: "2025", title: "Design & full build",           body: "From brand identity and design system to AI assistant, visual search, vendor dashboard, and checkout — built entirely in-house." },
+    { year: "2026", title: "Celeste launches",              body: "Celeste goes public as a Foxmen Studio concept product — a vision of what calm, intelligent commerce should feel like." },
   ];
 
   const avatars = ["#2d6a4f", "#52b788", "#74c69d", "#b7e4c7"];
